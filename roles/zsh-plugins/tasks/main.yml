@@ -1,0 +1,68 @@
+# - name: Clone "zsh-autosuggestions" repo to remote machine
+#   git:
+#     repo: https://github.com/zsh-users/zsh-autosuggestions.git
+#     dest: "{{ admin_home_path }}/.oh-my-zsh/custom/plugins/zsh-autosuggestions"
+
+
+# - name: Clone "zsh-syntax-highlighting" repo to remote machine
+#   git:
+#     repo: https://github.com/zsh-users/zsh-syntax-highlighting.git
+#     dest: "{{ admin_home_path }}/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting"
+
+- name: Clone "zsh-autosuggestions" repo to remote machine
+  git:
+    repo: https://github.com/zsh-users/zsh-autosuggestions.git
+    dest: "/tmp/.oh-my-zsh/custom/plugins/zsh-autosuggestions"
+
+
+- name: Clone "zsh-syntax-highlighting" repo to remote machine
+  git:
+    repo: https://github.com/zsh-users/zsh-syntax-highlighting.git
+    dest: "/tmp/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting"
+
+
+- name: Copy zsh-autosuggestions files recursively
+  copy:
+    src: "/tmp/.oh-my-zsh/custom/plugins/zsh-autosuggestions"
+    dest: "{{ admin_home_path }}/.oh-my-zsh/custom/plugins/zsh-autosuggestions"
+    # recurse: yes
+    remote_src: true
+
+- name: Copy zsh-syntax-highlighting files recursively
+  copy:
+    src: "/tmp/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting"
+    dest: "{{ admin_home_path }}/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting"
+    # recurse: yes
+    remote_src: true
+
+
+- name: Ensure proper file permission and owner
+  file:
+    path: "{{ admin_home_path }}/.oh-my-zsh/custom/plugins"
+    owner: "{{ admin_username }}"
+    group: "{{ admin_username }}"
+    recurse: yes
+    state: directory
+    
+
+- name: Remove temp files
+  file:
+    path: /tmp/.oh-my-zsh
+    state: absent
+    # recurse: yes
+
+
+
+
+# - name: Ensure plugins are read inside .zshrc
+#   lineinfile:
+#     path: "{{ admin_home_path }}/.zshrc"
+#     insertafter: EOF
+#     marker: "# ANSIBLE MANAGED BLOCK"
+#     block: plugins=(git zsh-autosuggestions zsh-syntax-highlighting)
+#   register: line_changed
+
+# - name: Print whether the line in .zshrc was changed
+#   debug:
+#     msg: "The line was {{ 'changed' if line_changed.changed else 'not changed' }}"
+

@@ -1,0 +1,119 @@
+---
+global:
+  checkNewVersion: true
+  sendAnonymousUsage: false  # true by default
+
+# (Optional) Log information
+# ---
+# log:
+#  level: ERROR  # DEBUG, INFO, WARNING, ERROR, CRITICAL
+#   format: common  # common, json, logfmt
+#   filePath: /var/log/traefik/traefik.log
+
+# (Optional) Accesslog
+# ---
+# accesslog:
+  # format: common  # common, json, logfmt
+  # filePath: /var/log/traefik/access.log
+
+# (Optional) Enable API and Dashboard
+# ---
+api:
+ dashboard: true  # true by default
+ insecure: false  # Don't do this in production!
+
+# Entry Points configuration
+# ---
+entryPoints:
+  http:
+    address: :80
+    # (Optional) Redirect to HTTPS
+    # ---
+    http:
+      redirections:
+        entryPoint:
+          to: https
+          scheme: https
+  https:
+    address: :443
+
+# Configure your CertificateResolver here...
+# ---
+# certificatesResolvers:
+#   staging:
+#     acme:
+#       email: your-email@example.com
+#       storage: /etc/traefik/certs/acme.json
+#       caServer: "https://acme-staging-v02.api.letsencrypt.org/directory"
+#       httpChallenge:
+#         entryPoint: web
+#
+#   production:
+#     acme:
+#       email: your-email@example.com
+#       storage: /etc/traefik/certs/acme.json
+#       caServer: "https://acme-v02.api.letsencrypt.org/directory"
+#       httpChallenge:
+#         entryPoint: web
+
+# (Optional) Overwrite Default Certificates
+tls:
+  stores:
+    default:
+      defaultCertificate:
+        certFile: /etc/traefik/certs/domain.cert
+        keyFile: /etc/traefik/certs/domain.key
+# (Optional) Disable TLS version 1.0 and 1.1
+  options:
+    default:
+      minVersion: VersionTLS12
+
+providers:
+  docker:
+    exposedByDefault: false  # Default is true
+  file:
+    # watch for dynamic configuration changes
+    directory: /etc/traefik
+    watch: true
+
+
+http:
+  middlewares:
+    https-redirect:
+      redirectScheme:
+        scheme: https
+    authelia:
+      forwardAuth:
+        address: "http://authelia:9091/api/verify?rd=https://auth.europa.local"
+        # Found in some guides, but assume it's non-functional or old as it doesn't work
+        # address: "http://authelia:9091/api/authz/forward-auth?authelia-url=https://auth.europa.local"
+    default-headers:
+      headers:
+        frameDeny: true
+        sslRedirect: true
+        browserXssFilter: true
+        contentTypeNosniff: true
+        forceSTSHeader: true
+        stsIncludeSubdomains: true
+        stsPreload: true
+        stsSeconds: 15552000
+        customFrameOptionsValue: SAMEORIGIN
+        customRequestHeaders:
+          X-Forwarded-Proto: https
+    
+    # reference
+    # https://github.com/techno-tim/launchpad/blob/master/docker/traefik/data/config.yml
+    default-whitelist:
+      ipWhiteList:
+        sourceRange:
+        - "10.0.0.0/8"
+        - "192.168.0.0/16"
+        - "172.16.0.0/12"
+      
+    # https://doc.traefik.io/traefik/middlewares/overview/
+    # There are several available middleware in Traefik, some can modify the request, the headers, some are in charge of redirections, some add authentication, and so on.
+    secured:
+      chain:
+        middlewares:
+        - default-whitelist
+        - default-headers

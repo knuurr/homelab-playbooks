@@ -1,0 +1,3 @@
+# Install: https://microk8s.io/
+# install form snap: sudo snap install microk8s --classic
+# add to k8s group: sudo usermod -a -G microk8s qbus

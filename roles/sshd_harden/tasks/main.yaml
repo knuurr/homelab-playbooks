@@ -1,0 +1,15 @@
+- name: "Copy sshd_config.d 01-harden.conf files"
+  copy:
+    src: "files/01-harden.conf"
+    dest: "/etc/ssh/sshd_config.d/91-harden.conf"
+    mode: 0600
+    owner: root
+    group: root
+  notify: Reload SSHD
+
+
+- name: Ensure SSHD reads config files
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    line: 'Include /etc/ssh/sshd_config.d/*'
+  notify: Reload SSHD

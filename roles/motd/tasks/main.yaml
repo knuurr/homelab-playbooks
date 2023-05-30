@@ -1,0 +1,28 @@
+# - name: Configure SSHD MOTD
+#   hosts: localhost
+#   become: true
+
+
+# tasks:
+#   - name: Copy SSHD MOTD config file
+#     copy:
+#       src: files/91_motd.conf
+#       dest: /etc/ssh/sshd_config.d/91_motd.conf
+#       owner: root
+#       group: root
+#       mode: 0600
+
+
+- name: "Copy MOTD text file"
+  copy:
+    src: "files/motd.txt"
+    dest: "/etc/motd"
+    owner: root
+    group: root
+    mode: 0644
+
+
+# - name: Reload SSHD
+#   service:
+#     name: sshd
+#     state: reloaded

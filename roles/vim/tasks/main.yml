@@ -1,0 +1,12 @@
+- name: Install vim package
+  apt:
+    name: vim
+    state: present
+
+- name: copy .vimrc config files to remote hosts
+  copy:
+    src: files/.vimrc
+    dest: "{{ admin_home_path }}/.vimrc"
+    owner: "{{ admin_username }}"
+    group: "{{ admin_username }}"
+    mode: "0644"

@@ -1,0 +1,71 @@
+
+  - name: Install tmux package
+    apt:
+      name: tmux
+      state: present
+
+
+
+  - name: Create .tmux folder if nonexistent
+    file:
+      path: "{{ admin_home_path }}/.tmux"
+      state: directory
+      # owner: "{{ admin_username }}"
+      # group: "{{ admin_username }}"
+      # recurse: yes
+
+
+  - name: copy oh-my-tmux config files to remote hosts
+    copy:
+      src: files/
+      dest: "{{ admin_home_path }}/.tmux/"
+      #owner: "{{ admin_username }}"
+      #group: "{{ admin_username }}"
+      mode: "0730"
+
+  - name: Esnure proper owner for .tmux folder
+    file:
+      path: "{{ admin_home_path }}/.tmux"
+      owner: "{{ admin_username }}"
+      group: "{{ admin_username }}"
+      recurse: yes
+      state: directory
+      mode: "0774"
+
+  - name: Create symlink for.tmux.conf
+    file:
+      src: "{{ admin_home_path }}/.tmux/.tmux.conf"
+      dest: "{{ admin_home_path }}/.tmux.conf"
+      state: link
+      # force: yes
+      # The follow parameter is set to yes to ensure the owner of the symlink itself is changed, not the target it points to
+      follow: yes
+      # owner: "{{ admin_username }}"
+      # group: "{{ admin_username }}"
+      # mode: "0644"
+
+  - name: Copy .tmux.conf.local
+    copy:
+      src: "{{ admin_home_path }}/.tmux/.tmux.conf.local"
+      remote_src: true
+      dest: "{{ admin_home_path }}/.tmux.conf.local"
+      owner: "{{ admin_username }}"
+      group: "{{ admin_username }}"
+      mode: "0644"
+
+  - name: Esnure proper owner for symlink
+    file:
+      path: "{{ admin_home_path }}/.tmux.conf"
+      follow: yes
+      owner: "{{ admin_username }}"
+      group: "{{ admin_username }}"
+
+
+
+# - name: Esnure proper owner for .tmux folder
+#    file:
+#      path: "{{ admin_home_path }}/.tmux"
+#      owner: "{{ admin_username }}"
+#      group: "{{ admin_username }}"
+#      recurse: yes
+#      state: directory

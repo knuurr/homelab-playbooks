@@ -1,0 +1,144 @@
+---
+# vars:
+#   private_ips:
+#     - 192.168.0.0/16
+#     - 10.0.0.0/8
+#     - 172.16.0.0/12
+
+
+# Inspiration: https://github.com/dannybouwers/homecontroller/wiki/Setup-firewall
+# 
+
+# how do you create an app profile for ufw?
+# https://askubuntu.com/questions/409013/how-do-you-create-an-app-profile-for-ufw
+
+
+
+# App profiles are stored in /etc/ufw/applications.d and sometimes /etc/services.
+
+- name: Install UFW package
+  apt:
+    name: ufw
+    state: latest
+
+- name: Ensure UFW service is enabled
+  systemd:
+    name: ufw
+    enabled: yes # is enabled?
+
+
+# - name: Debug lookup result
+#   debug:
+#     var: lookup('fileglob', 'files/*.profile')
+
+
+- name: Transfer custom UFW profile files
+  copy:
+    #  loop directive is used to iterate over each file matched by the fileglob lookup plugin
+    src: "{{ item }}"
+    dest: "/etc/ufw/applications.d/"
+    owner: root
+    group: root
+    mode: 0644
+  with_fileglob:
+    - "files/*.profile"
+  notify: "Reload UFW"
+
+
+# REMEMBER
+# UFW sources some port names from /etc/services
+# WARN: Skipping 'http': also in /etc/services
+# WARN: Skipping 'https': also in /etc/services
+# WARN: Skipping 'ntp': also in /etc/services
+# WARN: Skipping 'ssh': also in /etc/services
+# Available applications:
+#   DHCPv6
+#   OpenSSH
+#   dhcp
+#   dns
+#   qbittorrent
+#   ssh-hardened
+
+- name: Enable default ports
+  ufw:
+    rule: allow
+    port: '{{ item.port }}'
+    comment: '{{ item.comment }}'
+  # debug:
+  #   msg: "Processing rule - Port: {{ item.port }}, Comment: {{ item.comment }}"
+  loop:
+    - port: ssh
+      comment: "SSH (standard port, for endlessh)"
+    - port: https
+      comment: HTTP/S
+    - port: http
+      comment: HTTP
+    - port: ntp
+      comment: NTP 
+  notify: "Reload UFW"
+
+- name: Enable custom profiles
+  ufw:
+    rule: allow
+    name: '{{ item.name }}'
+    comment: '{{ item.comment }}'
+  # Thus doesn't work
+  # debug:
+  #   msg: "Processing rule - Port: {{ item.port }}, Comment: {{ item.comment }}"
+  loop:
+    - name: ssh-hardened
+      comment: "SSH (custom hardened port)"
+    - name: dns
+      comment: "DNS"
+    - name: qbittorrent
+      comment: "Qbittorrent client"
+  notify: "Reload UFW"
+
+# What are the differences between these 2 below?
+# - name: Allow traffic from LAN only (192.168.0.0/16)
+#   ufw:
+#     rule: allow
+#     from_ip: '{{ item }}'
+#     insert_relative_to: last-ipv4
+#   loop:
+#     - 10.0.0.0/8
+#     - 172.16.0.0/12
+#     - 192.168.0.0/16
+
+
+# VERIFY DEFAULT POLICY BY DOING:
+# ufw status verbose
+# root@cmp:~# ufw status verbose
+# Status: active
+# Logging: on (low)
+# Default: deny (incoming), allow (outgoing), disabled (routed)
+# New profiles: skip
+
+# By adding the Add implicit deny rule task, any traffic that doesn't match the previous allow rules will be denied, providing an implicit deny at the end of the rule set.
+- name: Set default incoming policy to deny
+  ufw:
+    default: deny
+    direction: incoming
+  notify: "Reload UFW"
+
+- name: Set default outgoing policy to allow
+  ufw:
+    default: allow
+    direction: outgoing
+  notify: "Reload UFW"
+  
+
+
+
+# Change the default policy for incoming or outgoing traffic
+# - name: Allow incoming traffic from private IPs on all ports
+#   ufw:
+#     rule: allow
+#     from: "192.168.0.0/16, 10.0.0.0/8, 172.16.0.0/12"
+#     # to: any
+#     direction: incoming
+#     # proto: any
+#     # port: any
+#   notify: "Enable UFW and reload rules"
+
+

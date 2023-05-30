@@ -1,0 +1,22 @@
+---
+###############################################################
+#                         Users Database                      #
+###############################################################
+
+# This file can be used if you do not have an LDAP set up.
+
+# How to generate new:
+# docker run authelia/authelia:latest authelia crypto hash generate argon2 --password 'password' 
+
+# List of users
+users:
+  # Kept for debugging purposes
+  authelia:
+    displayname: "Authelia User"
+    disabled: true
+    # !!! user:pwd = authelia:authelia !!!
+    password: "$6$rounds=50000$BpLnfgDsc2WD8F2q$Zis.ixdg9s/UOJYrs56b5QEZFiZECu0qZVNsIYxBaNJ7ucIL.nlxVCT5tqh8KHG8X4tlwCFm5r6NTOZZ5qRFN/"  # yamllint disable-line rule:line-length
+    email: me@lol.com
+    groups:
+      - admins
+      - dev

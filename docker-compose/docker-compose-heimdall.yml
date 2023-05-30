@@ -1,0 +1,48 @@
+---
+version: "3.10"
+
+
+
+# variables:
+#   PORT: 80
+
+networks:
+  frontend:
+    external: true
+
+
+services:
+  heimdall:
+
+    image: lscr.io/linuxserver/heimdall:latest
+    container_name: heimdall
+    environment:
+      - PUID=${UID}
+      - PGID=${GID}
+      - TZ=Etc/UTC
+    volumes:
+      - /opt/heimdall/config:/config
+  # ports:
+    #   - 80:80
+    #   - 443:443
+    restart: unless-stopped
+    networks:
+      - frontend
+    labels:
+      # Enable traefik for that container
+      - "traefik.enable=true"
+      # Create routing rules
+      - "traefik.http.routers.heimdall.rule=Host(`europa.local`)"
+      - "traefik.http.services.heimdall.loadbalancer.server.port=80"
+      - "traefik.docker.network=frontend"
+      - "traefik.http.routers.heimdall.tls=true"
+      - "traefik.http.routers.heimdall.middlewares=authelia@docker,secured@file"
+      # - 'traefik.http.routers.heimdall.middlewares=secured@file'
+      # - 'traefik.http.routers.heimdall.middlewares=authelia-basic@docker'
+      # - "traefik.http.routers.heimdall-secure.middlewares=authelia@docker"
+      # - 'traefik.http.routers.api.middlewares=domain'
+      # - 'traefik.http.middlewares.domain.redirectregex.regex=^https://europa.local/(.*)'
+      # - 'traefik.http.middlewares.domain.redirectregex.replacement=https://home.europa.local/$${1}'
+      # - 'traefik.http.middlewares.domain.redirectregex.permanent=true'
+
+

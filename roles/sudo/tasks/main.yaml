@@ -1,0 +1,15 @@
+- name: "Copy sshd_config.d 99_sudo.conf files"
+  copy:
+    src: "files/99_sudo.conf"
+    dest: "/etc/sudoers.d/99_sudo.conf"
+    mode: 0440
+    owner: root
+    group: root
+
+
+- name: Ensure sudoers reads config files
+  lineinfile:
+    path: /etc/sudoers
+    line: '@includedir /etc/sudoers.d'
+    validate: /usr/sbin/visudo -cf %s
+

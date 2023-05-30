@@ -1,0 +1,90 @@
+# https://hub.docker.com/r/linuxserver/deluge
+# https://hub.docker.com/_/nextcloud
+# https://hub.docker.com/r/photoprism/photoprism <- not enough space
+# https://hub.docker.com/r/homeassistant/home-assistant
+#
+
+
+# Rootless docker inspiration:
+# https://shogo.eu/blog/2022/11/19/Setting-up-a-rootless-Docker-server-with-Ansible/
+# 
+
+
+- name: Install Docker on remote server
+  # become: true
+  apt:
+    name: docker.io
+    state: present
+
+- name: Start Docker daemon
+  # become: true
+  service:
+    name: docker
+    state: started
+    enabled: true
+
+- name: create "docker" group for Docker administrative purposes
+  group: 
+    name: docker
+    state: present 
+
+
+- name: "Add admin user, in out case, {{ admin_username }}, to Docker group, as Unix secondary group"
+  user:
+    name: "{{ admin_username }}"
+    groups:
+      - docker
+    append: true
+
+
+# - name: Create a Docker container
+#   # become: true
+#   docker_container:
+#     name: my_container
+#     image: ubuntu:latest
+#     state: started
+
+- name: Create Docker networks
+  docker_network:
+    name: "{{ item.name }}"
+    driver: "{{ item.driver }}"
+  loop:
+    - name: frontend
+      driver: bridge
+    - name: backend
+      driver: bridge
+    # - name: database
+    #   driver: bridge
+
+
+- name: "Ensure group {{ container_group }} exists with correct gid"
+  group:
+    name: "{{ container_group }}"
+    state: present
+    gid: "{{ container_user_gid }}"
+
+- name: "Create dedicated user {{ container_user }} for containers"
+  user:
+    name: "{{ container_user }}"
+    uid: "{{ container_user_uid }}"  # Specify the desired UID
+    group: "{{ container_group }}"
+    # gid: 2000  # Specify the desired GID
+    # home: /home/dockeruser
+    createhome: no # avoid creating a home directory for the user
+    shell: /bin/false # prevent the user from logging in
+    # system: yes # create a system user with minimal privileges.
+
+
+- name: Add dedicated user for containers to docker group
+  become: true
+  user:
+    name: "{{ container_user }}"
+    groups: docker
+    append: yes
+
+
+
+- name: Prepare "netshoot" tool on remote host
+#   # become: true
+  docker_image:
+    name: nicolaka/netshoot

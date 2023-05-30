@@ -1,0 +1,19 @@
+- name: Install zsh package
+  apt:
+    name: zsh
+    state: present
+
+
+- name: Ensure zsh is default shell for admin user
+  user:
+    name: "{{ admin_username }}"
+    shell: /bin/zsh
+
+
+# experimental
+# - name: Install oh-my-zsh
+  # command: "sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended"
+  
+
+# - name: Supply custom .zshrc - for use with oh-my-zsh
+#   copy: 

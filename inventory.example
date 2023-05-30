@@ -1,0 +1,4 @@
+[local-1-pre]
+192.168.1.69 # port 22, for first run
+[local-1]
+192.168.1.69 ansible_port=1337

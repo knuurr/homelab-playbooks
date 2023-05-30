@@ -1,0 +1,25 @@
+- name: "Copy sshd_config.d 99-banner.conf files"
+  copy:
+    src: "files/99-banner.conf"
+    dest: "/etc/ssh/sshd_config.d/99-banner.conf"
+    mode: 0600
+    owner: root
+    group: root
+  notify: Reload SSHD
+
+- name: Copy SSH banner
+  copy:
+    src: "files/sshd-banner"
+    dest: "/etc/ssh/sshd-banner"
+    mode: 0600
+    owner: root
+    group: root
+  notify: Reload SSHD
+
+- name: Ensure SSHD reads config files
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    line: 'Include /etc/ssh/sshd_config.d/*'
+  notify: Reload SSHD
+
+

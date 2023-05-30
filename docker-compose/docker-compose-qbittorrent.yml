@@ -1,0 +1,40 @@
+---
+version: "2.1"
+services:
+  qbittorrent:
+    image: lscr.io/linuxserver/qbittorrent:latest
+    container_name: qbittorrent
+    environment:
+      - PUID=2000
+      - PGID=2000
+      - TZ=Etc/UTC
+      - WEBUI_PORT=8080
+    volumes:
+      - /opt/qbittorrent:/config
+      - /opt/downloads:/downloads
+    ports:
+    # - 8080:8080
+      - 6881:6881
+      - 6881:6881/udp
+    restart: unless-stopped
+    networks:
+      - frontend 
+    labels:
+      - "traefik.enable=true"
+      # # - "traefik.docker.network=frontend"
+      - "traefik.http.routers.qbittorrent.rule=Host(`torrent.europa.local`)"
+      # - "traefik.http.routers.qbittorrent.rule=Host(`app.europa.local`) && PathPrefix(`/torrent`)"
+      # associates the stripprefix middleware with the qbittorrent router
+      # - "traefik.http.routers.qbittorrent.middlewares=stripprefix-qbittorrent,authelia@docker"
+      # configures the stripprefix middleware to remove the prefix from the incoming request
+      # - "traefik.http.middlewares.stripprefix-qbittorrent.stripprefix.prefixes=/torrent"
+      # https://doc.traefik.io/traefik/middlewares/http/stripprefix/
+      - "traefik.http.services.qbittorrent.loadbalancer.server.port=8080"
+      - "traefik.http.routers.qbittorrent.tls=true"
+      - "traefik.http.routers.qbittorrent.middlewares=authelia@docker"
+
+
+
+networks:
+  frontend:
+    external: true
