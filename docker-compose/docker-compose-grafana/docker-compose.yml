@@ -1,0 +1,38 @@
+# Grafana setup
+# https://medium.com/@ugenef/application-monitoring-with-traefik-prometheus-grafana-and-docker-compose-for-beginners-2fe25d1b60a8
+version: "3.3"
+
+networks:
+  backend:
+    external: true
+
+
+services:
+  grafana:
+    image: grafana/grafana
+    container_name: "grafana"
+    user: root # https://community.grafana.com/t/mkdir-cant-create-directory-var-lib-grafana-plugins-permission-denied/68342/31
+    # depends_on:
+    #   - prometheus
+    volumes:
+      - "/opt/grafana/:/var/lib/grafana"
+      # - "./grafana/provisioning/:/etc/grafana/provisioning/"
+    environment:
+      - GF_SECURITY_DISABLE_INITIAL_ADMIN_CREATION="true"
+      - GF_ANALYTICS_REPORTING_ENABLED=false
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${SERVICE_NAME}.tls=true"
+      - "traefik.http.routers.${SERVICE_NAME}.rule=Host(`${SUBDOMAIN}.${ROOT_DOMAIN}`)"
+      - "traefik.http.routers.${SERVICE_NAME}.service=grafana"
+      - "traefik.http.routers.${SERVICE_NAME}.middlewares=authelia@docker"
+      - "traefik.http.services.${SERVICE_NAME}.loadbalancer.server.port=${PORT}"
+    networks:
+      - backend
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "3"  

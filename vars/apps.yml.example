@@ -1,0 +1,18 @@
+prod_apps:
+    # Authelia + Traefik first on top
+    # critical apps
+    - authelia
+    - traefik
+    - prometheus
+    # Rest of apps
+    - calibreweb
+    - endlessh
+    - heimdall
+    - jellyfin
+    - n8n
+    - portainer
+    - qbittorrent
+    - vaultwarden
+    - grafana
+
+

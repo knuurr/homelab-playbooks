@@ -1,0 +1,64 @@
+---
+version: '3.3'
+
+# volumes:
+#   config-folder:
+#     driver_opts:
+#         # type: "nfs"
+#         # o: "addr=10.40.0.199,nolock,soft,rw"
+#         device: "/opt/portainer"
+
+
+networks:
+  frontend:
+    external: true 
+  backend:
+    external: true 
+
+
+services:
+  authelia:
+    image: authelia/authelia
+    container_name: authelia
+    restart: always
+    # depends_on:
+    #   - traefik
+    security_opt:
+      - no-new-privileges:true
+    volumes:
+      - /opt/authelia:/config
+    networks:
+      - frontend
+      - backend
+    deploy:
+      resources:
+        limits:
+          cpus: '0.4'
+          memory: '128M'
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.http.routers.${SERVICE_NAME}.rule=Host(`${SUBDOMAIN}.${ROOT_DOMAIN}`)'
+      - 'traefik.http.routers.${SERVICE_NAME}.entrypoints=https'
+      - 'traefik.http.routers.${SERVICE_NAME}.tls=true'
+      # - "traefik.docker.network=frontend"
+      # - "traefik.http.services.${SERVICE_NAME}.loadbalancer.server.port=9091"
+      # - 'traefik.http.routers.${SERVICE_NAME}.tls.certresolver=letsencrypt'
+      - 'traefik.http.middlewares.${SERVICE_NAME}.forwardauth.address=http://authelia:9091/api/verify?rd=https://${AUTH_DOMAIN}' # yamllint disable-line rule:line-length
+      - 'traefik.http.middlewares.${SERVICE_NAME}.forwardauth.trustForwardHeader=true'
+      - 'traefik.http.middlewares.${SERVICE_NAME}.forwardauth.authResponseHeaders=Remote-User,Remote-Groups,Remote-Name,Remote-Email'  # yamllint disable-line rule:line-length
+      # old working
+      - 'traefik.http.middlewares.authelia-basic.forwardAuth.address=http://authelia:9091/api/verify?auth=basic'
+      - 'traefik.http.middlewares.authelia-basic.forwardAuth.trustForwardHeader=true'
+      - 'traefik.http.middlewares.authelia-basic.forwardAuth.authResponseHeaders=Remote-User,Remote-Groups,Remote-Name,Remote-Email'
+      # new
+      # - 'traefik.http.middlewares.authelia.forwardauth.address=http://authelia:9091/api/authz/forward-auth?authelia-url=https://auth.europa.local'  # yamllint disable-line rule:line-length
+      # - 'traefik.http.middlewares.authelia.forwardauth.trustForwardHeader=true'
+      # - 'traefik.http.middlewares.authelia.forwardauth.authResponseHeaders=Remote-User,Remote-Groups,Remote-Name,Remote-Email'  # yamllint disable-line rule:line-length
+    expose:
+      - ${PORT}
+    healthcheck:
+      ## In production the healthcheck section should be commented.
+      disable: true
+    environment:
+      - TZ=Europe/Warsaw
+

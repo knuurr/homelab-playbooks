@@ -1,9 +1,28 @@
+- hosts: local-1-pre
+  become: yes
+  # become_user: ansible
+  vars_files:
+    - vars/main.yml
+    - vars/apps.yml
+  ignore_errors: "{{ ansible_check_mode }}"
+  gather_facts: no
+
+  # Just change SSH port, if fail then assume port is changed
+  roles:
+    - role: sshd_harden # harden SSHD config
+
+  handlers:
+    - include: handlers/handlers.yml
+
+
 - hosts: local-1
   become: yes
   # become_user: ansible
   vars_files:
-    - vars/main.yaml
+    - vars/main.yml
+    - vars/apps.yml
   ignore_errors: "{{ ansible_check_mode }}"
+  
 
   pre_tasks:
     - name: Update apt cache
@@ -38,17 +57,20 @@
     - role: zsh-plugins # configure oh-my-zsh plugins
     - role: docker-infra # setup docker infrastructure
     - role: ufw # configure UFW firewall
+    - role: docker-compose # Configure docker apps
 
 
   handlers:
-    - name: "Reload UFW"
-      ufw:
-        # state: enabled
-        state: reloaded
+    - include: handlers/handlers.yml
 
-    - name: "Reload SSHD"
-      service:
-        name: sshd
-        state: restarted
+  #   - name: "Reload UFW"
+  #     ufw:
+  #       # state: enabled
+  #       state: reloaded
+
+  #   - name: "Reload SSHD"
+  #     service:
+  #       name: sshd
+  #       state: restarted
 
 

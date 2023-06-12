@@ -1,5 +1,5 @@
 ---
-version: "2.1"
+version: "3"
 
 networks:
   endlessh-only:
@@ -9,7 +9,14 @@ services:
   endlessh:
     image: lscr.io/linuxserver/endlessh:latest
     container_name: endlessh
-    user: 2000:2000
+    # user: 2000:2000
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '0.05'
+          memory: '128M'    
     environment:
       # - PUID=1000
       # - PGID=1000

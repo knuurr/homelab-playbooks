@@ -1,0 +1,52 @@
+- name: Create target directory for Docker Compose files
+  file:
+    path: "/srv/docker-compose"
+    state: directory
+    mode: '0644'
+    # owner: 
+
+- name: Transfer docker-compose folders to remote host
+  synchronize:
+    # src: "docker-compose/docker-compose-{{ item }}"
+    src: "docker-compose/"
+    dest: "/srv/docker-compose/"
+    rsync_opts:
+      - "--chmod=640"
+      - "--exclude=dev-*"
+      - "--exclude=*.example"
+    recursive: yes
+    archive: no
+    checksum: yes
+    delete: yes
+  # loop: "{{ prod_apps }}"
+
+
+# With async, this will always return "changed"
+- name: Launch Docker Compose files
+  docker_compose:
+    project_src: "/srv/docker-compose/docker-compose-{{ item }}/"
+    state: present
+  # loop: "{{ folder_list }}"
+  # with_fileglob:
+  #   - "/srv/docker-compose/docker-compose-*"
+  loop: "{{ prod_apps }}"
+  # async: 6 # Ansible should run up to 5 iterations of the loop in parallel
+  # fix for "check mode and async cannot be used on same task."
+  # https://alex.dzyoba.com/blog/ansible-check-async/
+  # This little trick checks for check mode and if it’s set the async will be disabled because it’s set 0. If check mode is not set it will set the desired async timeout.
+  async: "{{ ansible_check_mode | ternary(0, 5) }}"
+  poll: 0 # Ansible will not wait for the tasks to complete before moving on to the next task
+  register: async_result  # Register the result of each loop iteration
+
+# Check true output for each loop task
+- name: Check async task status
+  async_status:
+    jid: "{{ item.ansible_job_id }}"
+  loop: "{{ async_result.results }}"
+  register: async_status_result  # Register the status of each async task
+  when: not ansible_check_mode
+
+# - name: Process async task results
+#   debug:
+#     msg: "{{ item.item }} - Status: {{ item.changed }}"
+#   loop: "{{ async_status_result.results }}"

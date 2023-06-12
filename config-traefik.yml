@@ -1,8 +1,11 @@
 ---
   
-- name: Upload traefik.yml config
+- name: Upload config
   hosts: local-1
   become: true
+  vars_files:
+    - vars/main.yml
+    - vars/secrets.yml
 
   tasks:
     # Traefik configuration
@@ -15,22 +18,17 @@
       group: root
 
   - name: Upload traefik.yml static config to server
-    copy: 
-      src: files/traefik.yml
+    # copy:
+    template:
+      # src: files/traefik.yml
+      src: files/traefik.yml.j2
       dest: /opt/traefik/traefik.yml
       mode: 0644
       owner: root
       group: root
+    notify: "Restart Traefik"
 
-  # - name: Upload config.yml static config to server
-  #   copy: 
-  #     src: files/traefik.yml
-  #     dest: /opt/traefik/traefik.yml
-  #     mode: 0644
-  #     owner: root
-  #     group: root
-
-    # Certificate files config
+  # Certificate files config
   - name: Upload certificate file for traefik
     copy:
       src: files/domain.cert
@@ -39,6 +37,7 @@
       owner: root
       group: root
       # state: directory
+    notify: "Restart Traefik"
 
   - name: Upload certificate KEY file for traefik
     copy:
@@ -48,24 +47,19 @@
       owner: root
       group: root
       # state: directory
+    notify: "Restart Traefik"
 
   ### AUTHELIA CONFIG ###
-  # - name: Create "/opt/authelia" directory
-  #   file:
-  #     path: /etc/traefik/certs
-  #     state: directory
-  #     mode: 0755
-  #     owner: root
-  #     group: root
-
-
   - name: Upload AUTHELIA static config to server
-    copy: 
-      src: files/authelia-conf.yml
+    # copy:
+    template:
+      # src: files/authelia-conf.yml
+      src: files/authelia-conf.yml.j2
       dest: /opt/authelia/configuration.yml
       mode: 0600
       owner: root
       group: root
+    notify: "Restart Authelia"
 
 
   - name: Upload AUTHELIA static user DB
@@ -75,3 +69,7 @@
       mode: 0600
       owner: root
       group: root
+    notify: "Restart Authelia"
+
+  handlers:
+    - include: handlers/handlers.yml

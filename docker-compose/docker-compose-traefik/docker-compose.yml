@@ -1,0 +1,78 @@
+version: "3.3"
+# https://traefik.io/blog/traefik-2-tls-101-23b4fbee81f1/
+# https://doc.traefik.io/traefik/user-guides/docker-compose/basic-example/
+# https://dev.to/karvounis/advanced-traefik-configuration-tutorial-tls-dashboard-ping-metrics-authentication-and-more-4doh
+
+
+networks:
+  frontend:
+    external: true
+  backend:
+    external: true
+
+
+services:
+  traefik:
+    image: "traefik:v2.9"
+    container_name: "traefik"
+    restart: always
+    # depends_on:
+      # - traefik
+      # - authelia
+    security_opt:
+      - no-new-privileges:true
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "/opt/traefik:/etc/traefik"
+    networks:
+      - frontend
+      - backend
+    deploy:
+      resources:
+        limits:
+          cpus: '0.4'
+          memory: '150M'
+    logging:
+      options:
+        max-size: 10m
+        max-file: "3"
+    expose:
+      - 8082
+    healthcheck:
+    #   # Run traefik healthcheck command
+    #   # https://doc.traefik.io/traefik/operations/cli/#healthcheck
+      test: ["CMD", "traefik", "healthcheck", "--ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+    labels:
+      # expose dahsboiard 
+      # https://jensknipper.de/blog/exposing-traefik-dashboard/
+      # Required for exposing dashboard securely?
+      - "traefik.enable=true"
+      # - "traefik.docker.network=frontend"
+      - "traefik.http.routers.${SERVICE_NAME}.service=api@internal"
+      # - "traefik.http.routers.${SERVICE_NAME}.entrypoints=https"
+      - "traefik.http.routers.${SERVICE_NAME}.rule=Host(`${SUBDOMAIN}.${ROOT_DOMAIN}`)"
+      # https://doc.traefik.io/traefik/operations/dashboard/#insecure-mode
+      # Dashboard Router Rule?
+      # - "traefik.http.routers.traefik.rule=Host(`europa.local`) && PathPrefix(`/dashboard`)"
+      # - "traefik.http.routers.${SERVICE_NAME}.rule=Host(`traefik.europa.local`)"
+      # - "traefik.http.services.traefik.loadbalancer.server.port=8080"
+      # Enable SSL
+      - "traefik.http.routers.${SERVICE_NAME}.tls=true"
+      # - "traefik.http.routers.${SERVICE_NAME}.service=api@internal"
+      # -  traefik.http.routers.${SERVICE_NAME}.entryPoints=websecure
+      - "traefik.http.routers.${SERVICE_NAME}.middlewares=authelia@docker"
+      # working set:
+      - 'traefik.http.middlewares.authelia.forwardAuth.address=http://authelia:9091/api/verify?rd=https://${AUTH_DOMAIN}'
+      - 'traefik.http.middlewares.authelia.forwardAuth.trustForwardHeader=true'
+      - 'traefik.http.middlewares.authelia.forwardAuth.authResponseHeaders=Remote-User,Remote-Groups,Remote-Name,Remote-Email'
+
+
+
+

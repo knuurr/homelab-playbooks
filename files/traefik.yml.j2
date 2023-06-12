@@ -1,3 +1,5 @@
+#jinja2: trim_blocks: "true", lstrip_blocks: "false"
+{# https://github.com/ansible/ansible/issues/10725 #}
 ---
 global:
   checkNewVersion: true
@@ -22,6 +24,33 @@ api:
  dashboard: true  # true by default
  insecure: false  # Don't do this in production!
 
+{% if traefik_enable_ping %}
+ping: {}
+{% endif %}
+
+{% if traefik_enable_metrics %}
+
+metrics:
+  prometheus:
+    buckets:
+      - 0.1
+      - 0.3
+      - 1.2
+      - 5.0
+    entryPoint: metrics
+{% endif %}
+
+{% if traefik_enable_api_middleware %}
+
+experimental:
+  plugins:
+  # api-key-middleware
+    traefik-api-key-middleware:
+      moduleName: "github.com/dtomlinson91/traefik-api-key-middleware"
+      version: "v0.1.2"
+{% endif %}
+
+
 # Entry Points configuration
 # ---
 entryPoints:
@@ -36,6 +65,11 @@ entryPoints:
           scheme: https
   https:
     address: :443
+  {% if traefik_enable_metrics %}
+  
+  metrics:
+    address: :8082
+  {% endif %}
 
 # Configure your CertificateResolver here...
 # ---
@@ -61,8 +95,8 @@ tls:
   stores:
     default:
       defaultCertificate:
-        certFile: /etc/traefik/certs/domain.cert
-        keyFile: /etc/traefik/certs/domain.key
+        certFile: {{ traefik_cert_file }}
+        keyFile: {{ traefik_key_file }}
 # (Optional) Disable TLS version 1.0 and 1.1
   options:
     default:
@@ -71,6 +105,7 @@ tls:
 providers:
   docker:
     exposedByDefault: false  # Default is true
+    watch: true
   file:
     # watch for dynamic configuration changes
     directory: /etc/traefik
@@ -84,9 +119,8 @@ http:
         scheme: https
     authelia:
       forwardAuth:
-        address: "http://authelia:9091/api/verify?rd=https://auth.europa.local"
         # Found in some guides, but assume it's non-functional or old as it doesn't work
-        # address: "http://authelia:9091/api/authz/forward-auth?authelia-url=https://auth.europa.local"
+        address: "http://authelia:9091/api/verify?rd={{ traefik_forward_auth_url }}"
     default-headers:
       headers:
         frameDeny: true
@@ -100,15 +134,32 @@ http:
         customFrameOptionsValue: SAMEORIGIN
         customRequestHeaders:
           X-Forwarded-Proto: https
+    {% if traefik_enable_api_middleware %}
+  
+    api-middleware:
+      plugin:
+        traefik-api-key-middleware:
+          authenticationHeader: true
+          authenticationheaderName: X-API-KEY
+          bearerHeader: true
+          bearerHeaderName: Authorization
+          removeHeadersOnSuccess: true
+          keys:
+            # Indentation issues after producing template
+            {% for key in TRAEFIK_API_KEYS %} 
+            - "{{ key }}"
+            {% endfor %}
+    {% endif %}
     
     # reference
     # https://github.com/techno-tim/launchpad/blob/master/docker/traefik/data/config.yml
     default-whitelist:
       ipWhiteList:
         sourceRange:
-        - "10.0.0.0/8"
-        - "192.168.0.0/16"
-        - "172.16.0.0/12"
+          # Indentation issues after producing template
+          {% for range in traefik_ip_ranges %}
+          - "{{ range }}"
+          {% endfor %}
       
     # https://doc.traefik.io/traefik/middlewares/overview/
     # There are several available middleware in Traefik, some can modify the request, the headers, some are in charge of redirections, some add authentication, and so on.
@@ -117,3 +168,6 @@ http:
         middlewares:
         - default-whitelist
         - default-headers
+
+
+

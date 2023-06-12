@@ -1,0 +1,21 @@
+# Administrative user
+admin_username: "admin"
+admin_home_path: "/home/admin"
+
+# Dedicated user for running containers
+container_user: "dockeruser"
+container_group: "dockeruser"
+container_user_uid: 2000
+container_user_gid: 2000
+
+# Traefik
+traefik_cert_file: /etc/traefik/certs/domain.cert
+traefik_key_file: /etc/traefik/certs/domain.key
+traefik_enable_ping: true
+traefik_forward_auth_url: https://auth.domain.local
+traefik_enable_metrics: true
+traefik_enable_api_middleware: true
+traefik_ip_ranges:
+  - "10.0.0.0/8"
+  - "192.168.0.0/16"
+  - "172.16.0.0/12"

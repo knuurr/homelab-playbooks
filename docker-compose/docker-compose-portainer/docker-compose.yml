@@ -1,0 +1,49 @@
+# https://github.com/portainer/portainer-compose/blob/master/traefik/docker-compose.yml
+version: "3"
+
+# volumes:
+#   config-folder:
+#     driver_opts:
+#         # type: "nfs"
+#         # o: "addr=10.40.0.199,nolock,soft,rw"
+#         device: "/opt/portainer"
+
+
+networks:
+  backend:
+    external: true 
+
+services:
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: portainer
+    # depends_on:
+    #   - traefik
+    #   - authelia
+    security_opt:
+      - no-new-privileges:true
+    # user: 2000:2000
+    # ports:
+    #   - 9443:9443
+    volumes:
+      # - /opt/portainer:/data
+      - "/opt/portainer:/data"
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+    restart: on-failure:3
+    networks:
+      - backend
+    labels:
+      - "traefik.enable=true"
+      # With this setup, when a request comes to Traefik with a path like /api/app/lol/1, Traefik will strip the /api prefix before forwarding the request to the app service
+      # defines the routing rule to match requests with a path prefix
+      # - "traefik.http.routers.portainer.rule=Host(`portainer.europa.local`) && PathPrefix(`/portainer`)"
+      - "traefik.http.routers.${SERVICE_NAME}.rule=Host(`${SUBDOMAIN}.${ROOT_DOMAIN}`)"
+      # associates the stripprefix middleware with the portainer router
+      # - "traefik.http.routers.portainer.middlewares=stripprefix-portainer,authelia@docker"
+      - "traefik.http.routers.${SERVICE_NAME}.middlewares=authelia@docker"
+      # configures the stripprefix middleware to remove the prefix from the incoming request
+      # - "traefik.http.middlewares.stripprefix-portainer.stripprefix.prefixes=/portainer"      
+      - "traefik.http.services.${SERVICE_NAME}.loadbalancer.server.port=${PORT}"
+      - "traefik.http.routers.${SERVICE_NAME}.tls=true"
+      # - "traefik.http.routers.${SERVICE_NAME}.service=portainer"
+      # - "traefik.http.routers.portainer.middlewares=authelia@docker"

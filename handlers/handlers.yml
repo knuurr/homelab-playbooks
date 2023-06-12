@@ -1,0 +1,20 @@
+- name: "Reload UFW"
+  ufw:
+    state: reloaded
+
+- name: "Reload SSHD"
+  service:
+    name: sshd
+    state: restarted
+
+- name: Restart Traefik
+  docker_compose:
+    project_src: "/srv/docker-compose/docker-compose-traefik/"
+    state: present
+    restarted: true
+
+- name: Restart Authelia
+  docker_compose:
+    project_src: "/srv/docker-compose/docker-compose-authelia/"
+    state: present
+    restarted: true

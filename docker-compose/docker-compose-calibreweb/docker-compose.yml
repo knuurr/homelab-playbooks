@@ -1,0 +1,39 @@
+---
+version: "3"
+
+networks:
+  backend:
+    external: true
+
+services:
+  calibre-web:
+    image: lscr.io/linuxserver/calibre-web:latest
+    container_name: calibre-web
+    # depends_on:
+    #   - traefik
+    #   - authelia
+    security_opt:
+      - no-new-privileges:true
+    environment:
+      - PUID=2000
+      - PGID=2000
+      - TZ=Etc/UTC
+      - DOCKER_MODS=linuxserver/mods:universal-calibre #optional
+      - OAUTHLIB_RELAX_TOKEN_SCOPE=1 #optional
+    volumes:
+      - /opt/calibre-web/config:/config
+      - /media/books:/books
+    #ports:
+    #  - 8083:8083
+    restart: on-failure:3
+    networks:
+      - backend
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${SERVICE_NAME}.rule=Host(`${SUBDOMAIN}.${ROOT_DOMAIN}`)"
+      - "traefik.http.services.${SERVICE_NAME}.loadbalancer.server.port=${PORT}"
+      # - "traefik.docker.network=frontend"
+      # - "traefik.http.routers.${SERVICE_NAME}.entrypoints=web"
+      - "traefik.http.routers.${SERVICE_NAME}.tls=true"
+      - traefik.http.routers.${SERVICE_NAME}.middlewares=authelia@docker
+

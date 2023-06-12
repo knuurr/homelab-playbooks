@@ -1,0 +1,43 @@
+---
+version: "3.10"
+
+networks:
+  backend:
+    external: true
+
+
+services:
+  heimdall:
+    image: lscr.io/linuxserver/heimdall:latest
+    container_name: heimdall
+    # depends_on:
+    #   - traefik
+    #   - authelia
+    security_opt:
+      - no-new-privileges:true    
+    environment:
+      - PUID=${UID}
+      - PGID=${GID}
+      - TZ=Etc/UTC
+    volumes:
+      - "/opt/heimdall/config:/config"
+  # ports:
+    #   - 80:80
+    #   - 443:443
+    restart: on-failure:3
+    deploy:
+      resources:
+        limits:
+          cpus: '0.1'
+          memory: '256M'
+    networks:
+      - backend
+    labels:
+      # Enable traefik for that container
+      - "traefik.enable=true"
+      # Create routing rules
+      - "traefik.http.routers.${SERVICE_NAME}.rule=Host(`${ROOT_DOMAIN}`)"
+      - "traefik.http.services.${SERVICE_NAME}.loadbalancer.server.port=${PORT}"
+      - "traefik.docker.network=frontend"
+      - "traefik.http.routers.${SERVICE_NAME}.tls=true"
+      - "traefik.http.routers.${SERVICE_NAME}.middlewares=authelia@docker,secured@file"
