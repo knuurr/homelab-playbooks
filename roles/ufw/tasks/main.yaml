@@ -92,6 +92,8 @@
       comment: "DNS"
     - name: qbittorrent
       comment: "Qbittorrent client"
+    - name: samba
+      comment: "Samba shares"
   notify: "Reload UFW"
 
 # What are the differences between these 2 below?

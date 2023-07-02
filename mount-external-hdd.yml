@@ -1,0 +1,13 @@
+# Mount ext HDD + configure Samba, order matters
+- hosts: local-1
+  become: yes
+  # become_user: ansible
+  vars_files:
+    - vars/main.yml
+    - vars/apps.yml
+  ignore_errors: "{{ ansible_check_mode }}"
+  gather_facts: no
+
+  roles:
+    - mount-ext-hdd
+    - samba

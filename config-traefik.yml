@@ -28,27 +28,6 @@
       group: root
     notify: "Restart Traefik"
 
-  # Certificate files config
-  - name: Upload certificate file for traefik
-    copy:
-      src: files/domain.cert
-      dest: /opt/traefik/certs/domain.cert
-      mode: 0644
-      owner: root
-      group: root
-      # state: directory
-    notify: "Restart Traefik"
-
-  - name: Upload certificate KEY file for traefik
-    copy:
-      src: files/domain.key
-      dest: /opt/traefik/certs/domain.key
-      mode: 0600
-      owner: root
-      group: root
-      # state: directory
-    notify: "Restart Traefik"
-
   ### AUTHELIA CONFIG ###
   - name: Upload AUTHELIA static config to server
     # copy:
@@ -65,7 +44,7 @@
   - name: Upload AUTHELIA static user DB
     copy: 
       src: files/authelia-users_database.yml
-      dest: /opt/authelia/users_database.yml
+      dest: /etc/authelia/users_database.yml
       mode: 0600
       owner: root
       group: root

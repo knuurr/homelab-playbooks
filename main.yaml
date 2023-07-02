@@ -9,7 +9,7 @@
 
   # Just change SSH port, if fail then assume port is changed
   roles:
-    - role: sshd_harden # harden SSHD config
+    - role: sshd-harden # harden SSHD config
 
   handlers:
     - include: handlers/handlers.yml
@@ -31,8 +31,8 @@
 
   roles: 
     - role: motd # setup MOTD banner
-    - role: sshd_harden # harden SSHD config
-    - role: sshd_banner # setup SSHD banner
+    - role: sshd-harden # harden SSHD config
+    - role: sshd-banner # setup SSHD banner
     - role: sudo # setup sudo config
     # - role: autoupdate-Debian
     - role: hifis.unattended_upgrades
@@ -47,7 +47,7 @@
     - role: tmux # install and configure tmux
     - role: vim # ensure proper vim config
     - role: zsh # install zsh on machine, set it for admin suer
-    - role: gantsign.oh-my-zsh # install oh-my-zsh
+    - role: gantsign.oh-my-zsh # install oh-my-zsh - broken
       oh_my_zsh_write_zshrc: false
       users:
       - username: "{{ admin_username }}"
@@ -57,6 +57,8 @@
     - role: zsh-plugins # configure oh-my-zsh plugins
     - role: docker-infra # setup docker infrastructure
     - role: ufw # configure UFW firewall
+    - role: install-ext-hdd # mount external HDD
+    - role: samba # install and configure Samba - important to run after "install-ext-hdd", or it will fail
     - role: docker-compose # Configure docker apps
 
 

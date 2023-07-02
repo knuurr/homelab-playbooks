@@ -1,0 +1,11 @@
+[Unit]
+Description=Lacie
+
+[Mount]
+What=UUID=6214-E4EE
+Where=/mnt/myhdd
+Type=exfat
+Options=defaults,umask=0000
+
+[Install]
+WantedBy=multi-user.target

@@ -449,3 +449,24 @@ tmux_conf_uninstall_plugins_on_reload=true
 # Enable mouse support (click, scroll)
 set -g mouse on
 
+# Scrolling issues
+# In case of trouble scrolling in the terminal with Shift-Page Up/Down, the following will disable the smcup and rmcup capabilities for any term that reports itself as anything beginning with xterm: 
+# https://wiki.archlinux.org/title/tmux
+set -ga terminal-overrides ',xterm*:smcup@:rmcup@'
+
+
+#  If anyone else is having problems with using space to select text,  you need to have vi mode on:
+# (With tmux open)
+# ctrl+b 
+# :setw -g mode-keys vi
+# enter
+# ctrl+b
+# [
+# (navigate to the text you want to copy)
+# space (to start selection)
+# (navigate to the end of the text you want to copy)
+# enter (to copy selected text)
+# (open a new file; I used vim newfile.txt)
+# ctrl+b
+# ]
+setw -g mode-keys vi

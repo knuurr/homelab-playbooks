@@ -1,0 +1,67 @@
+# https://www.reddit.com/r/selfhosted/comments/kvesf3/authelia_and_bitwarden_via_traefik/
+# https://github.com/dani-garcia/vaultwarden/discussions/2934
+
+
+# Docker Traefik ModSecurity Setup
+# https://github.com/dani-garcia/vaultwarden/wiki/Docker---Traefik---ModSecurity-Setup
+
+
+# NOTE:
+# "I have a bitwarden instance running and I can confirm that the app will not connect if there is an issue with the certificate, either self signed or expired."
+# https://www.reddit.com/r/selfhosted/comments/rip3z1/vaultwarden_bitwarden_app_failed_to_fetch_error/
+version: '3.9'
+
+networks:
+  backend:
+    external: true 
+
+services:
+  vaultwarden:
+    image: vaultwarden/server:latest
+    container_name: vaultwarden
+    restart: on-failure:3
+    # depends_on:
+    #   - traefik
+    #   - authelia
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '0.02'
+          memory: '200M'
+    # user: 2000:2000
+    environment:
+      - WEBSOCKET_ENABLED=true
+      #- SIGNUPS_ALLOWED=false
+      - INVITATIONS_ALLOWED=false
+      - DOMAIN=https://${SUBDOMAIN}.${ROOT_DOMAIN}
+      - LOGIN_RATELIMIT_MAX_BURST=10
+      - LOGIN_RATELIMIT_SECONDS=60
+      - ADMIN_RATELIMIT_MAX_BURST=10
+      - ADMIN_RATELIMIT_SECONDS=60
+      - ADMIN_TOKEN=${ADMIN_TOKEN}
+      - SENDS_ALLOWED=false
+      #- ADMIN_TOKEN=
+    volumes:
+      # - /opt/vaultwarden:/data
+      - /opt/vaultwarden:/data
+    networks:
+      - backend
+    labels:
+      - traefik.enable=true
+      # UI
+      - traefik.http.routers.${SERVICE_NAME}.tls=true
+      # - traefik.http.routers.${SERVICE_NAME}.entrypoints=https
+      - traefik.http.routers.${SERVICE_NAME}.rule=Host(`${SUBDOMAIN}.${ROOT_DOMAIN}`)
+      - traefik.http.routers.${SERVICE_NAME}.service=${SERVICE_NAME}
+      - traefik.http.services.${SERVICE_NAME}.loadbalancer.server.port=${PORT}
+      # Websocket
+      - traefik.http.routers.vaultwarden-websocket.tls=true
+      # - traefik.http.routers.vaultwarden-websocket.entrypoints=https
+      - traefik.http.routers.vaultwarden-websocket.rule=Host(`${SUBDOMAIN}.${ROOT_DOMAIN}`) && Path(`/notifications/hub`)
+      - traefik.http.routers.vaultwarden-websocket.service=vaultwarden-websocket
+      - traefik.http.services.vaultwarden-websocket.loadbalancer.server.port=3012
+      # Middlewares
+      # - traefik.http.routers.${SERVICE_NAME}.middlewares=chain-authelia@file
+      - "traefik.http.routers.${SERVICE_NAME}.middlewares=authelia@docker"

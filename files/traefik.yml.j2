@@ -7,8 +7,8 @@ global:
 
 # (Optional) Log information
 # ---
-# log:
-#  level: ERROR  # DEBUG, INFO, WARNING, ERROR, CRITICAL
+log:
+  level: DEBUG  # DEBUG, INFO, WARNING, ERROR, CRITICAL
 #   format: common  # common, json, logfmt
 #   filePath: /var/log/traefik/traefik.log
 
@@ -29,7 +29,6 @@ ping: {}
 {% endif %}
 
 {% if traefik_enable_metrics %}
-
 metrics:
   prometheus:
     buckets:
@@ -41,7 +40,6 @@ metrics:
 {% endif %}
 
 {% if traefik_enable_api_middleware %}
-
 experimental:
   plugins:
   # api-key-middleware
@@ -91,16 +89,20 @@ entryPoints:
 #         entryPoint: web
 
 # (Optional) Overwrite Default Certificates
-tls:
-  stores:
-    default:
-      defaultCertificate:
-        certFile: {{ traefik_cert_file }}
-        keyFile: {{ traefik_key_file }}
+{# tls:
+  certresolver: duckdns
+  domains:
+    - main: "europa-local.duckdns.org"
+    - sans: "*.europa-local.duckdns.org"
+  # stores:
+   # default:
+    #  defaultCertificate:
+     #   certFile: {{ traefik_cert_file }}
+      #  keyFile: {{ traefik_key_file }}
 # (Optional) Disable TLS version 1.0 and 1.1
-  options:
-    default:
-      minVersion: VersionTLS12
+  #options:
+   # default:
+    #  minVersion: VersionTLS13 #}
 
 providers:
   docker:
@@ -111,6 +113,22 @@ providers:
     directory: /etc/traefik
     watch: true
 
+{% if traefik_enable_cert_resolver %}
+certificatesResolvers:
+  duckdns:
+    acme:
+      email: {{ TRAEFIK_ACME_EMAIL }}
+      storage: "/letsencrypt/acme.json"
+      {% if traefik_use_staging_cert %}
+      caServer: https://acme-staging-v02.api.letsencrypt.org/directory
+      {% endif %}
+      dnsChallenge:
+        provider: duckdns
+        delayBeforeCheck: 30
+        resolvers:
+          - "1.1.1.1:53"
+          - "8.8.8.8:53"
+{% endif %}
 
 http:
   middlewares:
@@ -135,7 +153,6 @@ http:
         customRequestHeaders:
           X-Forwarded-Proto: https
     {% if traefik_enable_api_middleware %}
-  
     api-middleware:
       plugin:
         traefik-api-key-middleware:
@@ -150,7 +167,6 @@ http:
             - "{{ key }}"
             {% endfor %}
     {% endif %}
-    
     # reference
     # https://github.com/techno-tim/launchpad/blob/master/docker/traefik/data/config.yml
     default-whitelist:

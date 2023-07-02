@@ -1,0 +1,100 @@
+---
+- name: Ad-hoc Actions for Docker Compose Containers
+  hosts: local-1
+  gather_facts: false
+  become: yes
+  vars_files:
+    - vars/main.yml
+    - vars/apps.yml
+  ignore_errors: "{{ ansible_check_mode }}"
+  
+  # ansible-playbook -i inventory playbook.yml -e "t_restart=['container1', 'container2']"
+  vars:
+    t_restart: [homer]  # List of containers to restart
+    t_start: []    # List of containers to start
+    t_stop: []     # List of containers to stop
+    t_recreate: [] # List of containers to recreate
+
+
+
+  tasks:
+    # If we want to stop any old docker-compsoe services, we still need old docker-compose.yml files for them
+    - name: Transfer NEW docker-compose folders to remote host (no delete)
+      synchronize:
+        # src: "docker-compose/docker-compose-{{ item }}"
+        src: "docker-compose/"
+        dest: "{{ compose_file_path }}/"
+        rsync_opts:
+          - "--chmod=644"
+          - "--exclude=dev-*"
+          - "--exclude=*.example"
+        recursive: yes
+        archive: no
+        checksum: yes
+        delete: no
+      # loop: "{{ prod_apps }}"
+
+
+    - name: Set owner recursively for docker-compose folders
+      file:
+        path: "{{ compose_file_path }}/"
+        owner: root
+        group: root
+        recurse: yes
+        state: directory
+    
+    - name: Permission quickfix for Homer icons
+      file:
+        path: "{{ compose_file_path }}/homer/icons"
+        mode: 0755
+        state: directory 
+        recurse: yes
+
+    - name: restart ALL Containers
+      docker_compose:
+        project_src: "{{ compose_file_path }}/{{ item }}/"
+        state: present
+        restarted: true
+      # when: t_restart | length > 0
+      loop: "{{ t_restart }}"
+      when: "'all' in t_restart"
+
+    - name: Some Restart Containers
+      docker_compose:
+        project_src: "{{ compose_file_path }}/{{ item }}/"
+        state: present
+        restarted: true
+      when: t_restart | length > 0
+      loop: "{{ t_restart }}"
+      # loop_control:
+      #   loop_var: container
+
+    - name: Start Some Containers
+      docker_compose:
+        project_src: "{{ compose_file_path }}/{{ item }}/"
+        state: present
+      when: t_start | length > 0
+      loop: "{{ t_start }}"
+      # loop_control:
+      #   loop_var: container
+
+    - name: Stop Some Containers
+      docker_compose:
+        project_src: "{{ compose_file_path }}{{ item }}/"
+        state: absent
+      when: t_stop | length > 0
+      loop: "{{ t_stop }}"
+      # loop_control:
+      #   loop_var: container
+
+    - name: Recreate Some Containers
+      docker_compose:
+        project_src: "{{ compose_file_path }}/{{ item }}/"
+        state: present
+        nocache: true
+        restarted: true
+        recreate: always
+      when: t_recreate | length > 0
+      loop: "{{ t_recreate }}"
+      # loop_control:
+      #   loop_var: container

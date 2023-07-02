@@ -1,0 +1,37 @@
+---
+version: "3"
+
+networks:
+  backend:
+    external: true
+
+services:
+  node-exporter:
+    image: quay.io/prometheus/node-exporter:latest
+    container_name: node-exporter
+    # command:
+    #   - '--path.rootfs=/host'
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.rootfs=/rootfs'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+    # pid: host
+    expose:
+      - 9100
+    # network_mode: host
+    restart: unless-stopped
+    networks:
+      - backend
+    # volumes:
+    #   - /:/host:ro,rslave
+    # labels:
+      # expose dahsboiard 
+      # https://jensknipper.de/blog/exposing-traefik-dashboard/
+      # Required for exposing dashboard securely?
+      # - "traefik.enable=true"
+

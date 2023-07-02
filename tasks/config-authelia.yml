@@ -1,0 +1,28 @@
+- name: Create "/etc/authelia" directory
+  file:
+    path: /etc/authelia
+    state: directory
+    mode: 0644
+    owner: root
+    group: root
+
+- name: Upload Authelia config to server
+  # copy:
+  template:
+    # src: files/authelia-conf.yml
+    src: files/authelia-conf.yml.j2
+    dest: /etc/authelia/configuration.yml
+    mode: 0644
+    owner: root
+    group: root
+  notify: "Restart Authelia"
+
+
+- name: Upload AUTHELIA static user DB
+  copy: 
+    src: files/authelia-users_database.yml
+    dest: /etc/authelia/users_database.yml
+    mode: 0640
+    owner: root
+    group: root
+  notify: "Restart Authelia"

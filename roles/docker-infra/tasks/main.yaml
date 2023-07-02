@@ -85,6 +85,28 @@
 
 
 - name: Prepare "netshoot" tool on remote host
-#   # become: true
   docker_image:
-    name: nicolaka/netshoot
+    name: "{{ item }}"
+    source: pull
+  loop:
+    - nicolaka/netshoot
+    - lazyteam/lazydocker
+
+- name: Create named container for "netshoot" tool
+  docker_container:
+    name: netshoot
+    image: nicolaka/netshoot
+    state: present
+    auto_remove: true
+    restart_policy: no
+
+- name: Create named container for "lazydocker" tool
+  docker_container:
+    name: lazydocker
+    image: lazyteam/lazydocker
+    state: present
+    auto_remove: true
+    restart_policy: no
+
+
+

@@ -1,0 +1,8 @@
+  - name: Edit systemd-resolved config file
+    ansible.builtin.lineinfile:
+      path: /etc/systemd/resolved.conf
+      regexp: '^#?DNSStubListener='
+      line: 'DNSStubListener=no'
+      backrefs: yes
+      state: present
+    notify: Restart systemd-resolved

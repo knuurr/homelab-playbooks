@@ -1,0 +1,19 @@
+- name: Create "/etc/traefik" directory
+  file:
+    path: /etc/traefik
+    state: directory
+    mode: 0755
+    owner: root
+    group: root
+
+- name: Upload traefik.yml static config to server
+  # copy:
+  template:
+    # src: files/traefik.yml
+    src: files/traefik.yml.j2
+    dest: /etc/traefik/traefik.yml
+    mode: 0644
+    owner: root
+    group: root
+  notify: "Restart Traefik"
+

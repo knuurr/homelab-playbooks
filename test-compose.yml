@@ -4,8 +4,16 @@
   vars_files:
     - vars/main.yml
     - vars/apps.yml
+    - vars/secrets.yml
   ignore_errors: "{{ ansible_check_mode }}"
   gather_facts: no
 
   roles:
     - role: docker-compose # Configure docker apps  
+      # prod_apps:
+      #   - name: traefik
+
+
+
+  handlers:
+    - include: handlers/handlers.yml

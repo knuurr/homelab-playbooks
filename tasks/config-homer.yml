@@ -1,0 +1,29 @@
+---
+- name: Find .env files
+  find:
+    paths: docker-compose/
+    patterns: ".env"
+  register: env_files
+
+- name: Extract SUBDOMAIN value from .env files
+  shell: 'grep -h "^SUBDOMAIN=" "{{ item.path }}" | cut -d "=" -f 2'
+  register: service_name_result
+  # loop: "{{ env_files.files }}"
+
+# - name: Save SERVICE_NAME values to variable
+#   set_fact:
+#     service_names: "{{ service_names | default([]) + [item.stdout] }}"
+#   loop: "{{ service_name_result.results }}"
+#   when: item.stdout is not none
+
+# - name: Display SERVICE_NAME values
+#   debug:
+#     var: service_names
+
+- name: Convert data to YAML list
+  set_fact:
+    yaml_list: "{{ service_name_result | splitlines }}"
+
+- name: Show the converted YAML list
+  debug:
+    var: yaml_list

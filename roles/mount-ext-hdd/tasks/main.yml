@@ -1,0 +1,22 @@
+- name: Create mount directory
+  file:
+    path: /mnt/myhdd
+    state: directory
+    mode: '0757'
+
+# - name: Install ntfs-3g package
+#   apt:
+#     name: ntfs-3g
+#     state: present
+
+- name: Create systemd mount unit for "myhdd"
+  copy:
+    src: files/myhdd.mount
+    dest: /etc/systemd/system/mnt-myhdd.mount
+    owner: root
+    group: root
+    mode: '0644'
+  notify: Reload systemd-udevd.service
+
+
+  

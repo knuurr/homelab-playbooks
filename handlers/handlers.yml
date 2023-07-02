@@ -18,3 +18,22 @@
     project_src: "/srv/docker-compose/docker-compose-authelia/"
     state: present
     restarted: true
+
+
+- name: Restart systemd-resolved
+  ansible.builtin.service:
+    name: systemd-resolved
+    state: restarted
+
+
+- name: Reload systemd-udevd.service
+  systemd:
+    name: systemd-udevd.service
+    state: reloaded
+
+
+
+- name: Restart Samba Service
+  service:
+    name: smbd
+    state: restarted

@@ -1,0 +1,26 @@
+homer_vars:
+  dashboards:
+    - subdomain: 'auth'
+      icon: authelia
+      name: Authelia
+    - subdomain: 'grafana'
+    - subdomain: 'portainer'
+    - subdomain: 'prometheus'
+    - subdomain: 'traefik'
+  "Media & Fun":
+    - subdomain: 'calibre'      
+      icon: calibreweb
+    - subdomain: 'jackett'
+    - subdomain: 'jellyfin'
+    - subdomain: 'lidarr'
+    - subdomain: 'pyload'
+    - subdomain: 'readarr'
+    - subdomain: 'transmission'
+    - subdomain: 'headphones'
+  Tools:
+    - subdomain: 'n8n'
+      name: n8n
+    - subdomain: 'vault'
+      name: Vaultwarden
+      icon: vaultwarden
+    - subdomain: syncthing

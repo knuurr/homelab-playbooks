@@ -1,0 +1,38 @@
+---
+
+networks:
+  backend:
+    external: true
+
+
+version: "2.1"
+services:
+  jackett:
+    image: lscr.io/linuxserver/jackett:latest
+    container_name: jackett
+    security_opt:
+      - no-new-privileges:true
+    environment:
+      - PUID=2000
+      - PGID=2000
+      - TZ=Etc/UTC
+      - AUTO_UPDATE=true #optional
+      - RUN_OPTS= #optional
+    volumes:
+      - /opt/jackett:/config
+      # - /path/to/blackhole:/downloads
+    # ports:
+    #   - 9117:9117
+    networks:
+      - backend 
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${SERVICE_NAME}.rule=Host(`${SUBDOMAIN}.${ROOT_DOMAIN}`)"
+      # https://doc.traefik.io/traefik/middlewares/http/stripprefix/
+      - "traefik.http.services.${SERVICE_NAME}.loadbalancer.server.port=${PORT}"
+      - "traefik.http.routers.${SERVICE_NAME}.tls=true"
+      - "traefik.http.routers.${SERVICE_NAME}.middlewares=authelia@docker"
+
+
+    

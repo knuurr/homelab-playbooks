@@ -1,0 +1,33 @@
+---
+version: "3"
+
+networks:
+  backend:
+    external: true
+
+services:
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:v0.47.0     
+    container_name: cadvisor
+    command:
+      # https://dev.to/cloudx/taming-cadvisors-high-cpu-usage-1nm5
+      - "--housekeeping_interval=30s"
+      - "--docker_only=true"
+      - "--disable_metrics=percpu,sched,tcp,udp,disk,diskIO,cpu_topology"
+    # ports:
+    #   - 8080:8080
+    expose:
+      - 8080
+    # network_mode: host
+    networks:
+      - backend
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+    devices:
+      - /dev/kmsg
+    privileged: true
+    restart: unless-stopped

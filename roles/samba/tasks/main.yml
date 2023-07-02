@@ -1,0 +1,42 @@
+- name: Install Samba
+  apt:
+    name: samba
+    state: present
+
+- name: Add samba_user
+  become: true
+  user:
+    name: samba_user
+
+- name: Modify samba_user shell and lock the account
+  become: true
+  user:
+    name: samba_user
+    shell: /usr/bin/nologin
+    state: present
+    password_lock: true
+
+
+- name: Create /etc/samba/ directory
+  file:
+    path: /etc/samba/
+    state: directory
+    mode: '0644'
+
+
+- name: Copy Samba configuration file
+  copy:
+    src: files/smb.conf
+    dest: /etc/samba/smb.conf
+    owner: root
+    group: root
+    mode: "0644"
+  notify:
+    - Restart Samba Service
+
+  # Temporary measure of course ; )
+- name: Change Samba password for samba_user
+  command: "smbpasswd -s samba_user"
+  args:
+    stdin: "samba\nsamba\n"
+

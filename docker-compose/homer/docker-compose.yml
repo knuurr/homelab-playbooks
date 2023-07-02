@@ -1,0 +1,39 @@
+---
+networks:
+  frontend:
+    external: true
+
+version: "2"
+services:
+  homer:
+    image: b4bz/homer
+    #To build from source, comment previous line and uncomment below
+    #build: .
+    container_name: homer
+    volumes:
+      - /opt/homer:/www/assets
+      - ./icons/png:/www/icons
+      - ./config/config-homer.yml:/www/assets/config.yml
+    # ports:
+    #   - 8080:8080
+    user: root # default
+    environment:
+      - INIT_ASSETS=1 # default
+    restart: on-failure:3
+    deploy:
+      resources:
+        limits:
+          cpus: '0.1'
+          memory: '256M'
+    networks:
+      # - frontend
+      - frontend
+    labels:
+      # Enable traefik for that container
+      - "traefik.enable=true"
+      # Create routing rules
+      - "traefik.http.routers.${SERVICE_NAME}.rule=Host(`${ROOT_DOMAIN}`)"
+      - "traefik.http.services.${SERVICE_NAME}.loadbalancer.server.port=${PORT}"
+      # - "traefik.docker.network=frontend"
+      - "traefik.http.routers.${SERVICE_NAME}.tls=true"
+      - "traefik.http.routers.${SERVICE_NAME}.middlewares=authelia@docker,secured@file"

@@ -4,15 +4,24 @@ prod_apps:
     - authelia
     - traefik
     - prometheus
+    # Monitoring containers
+    - cadvisor
+    - node-exporter
     # Rest of apps
     - calibreweb
+    - coredns
     - endlessh
-    - heimdall
+    - grafana
+    - homer
+    - jackett
     - jellyfin
+    - lidarr
+    - meme
     - n8n
     - portainer
-    - qbittorrent
+    - pyload
+    - readarr
+    - transmission
     - vaultwarden
-    - grafana
-
-
+    - headphones
+    - syncthing
