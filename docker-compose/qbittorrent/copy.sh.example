@@ -1,0 +1,12 @@
+#!/bin/sh
+
+echo "category: $1"
+echo "path: $2"
+
+[ "$1" != "music" ] && exit
+
+curl \
+    --request POST \
+    --data-urlencode "both=$2" \
+    --header "X-API-Key: API-KEY" \
+    "https://betanin:9393/api/torrents"

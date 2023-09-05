@@ -27,6 +27,11 @@ services:
     restart: unless-stopped
     networks:
       - backend
+    deploy:
+      resources:
+        limits:
+          cpus: '0.1'
+          memory: '128M'
     # volumes:
     #   - /:/host:ro,rslave
     # labels:

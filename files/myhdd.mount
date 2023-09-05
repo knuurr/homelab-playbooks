@@ -1,5 +1,7 @@
 [Unit]
 Description=Lacie
+Wants=smbd.service
+Before=smbd.service
 
 [Mount]
 What=UUID=6214-E4EE

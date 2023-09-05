@@ -25,6 +25,11 @@ services:
       - 21027:21027/udp
     networks:
       - backend 
+    deploy:
+      resources:
+        limits:
+          cpus: '0.05'
+          memory: '128M'
     restart: unless-stopped
     labels:
       - "traefik.enable=true"

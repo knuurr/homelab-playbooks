@@ -1,0 +1,8 @@
+---
+- name: Run apt upgrade
+- hosts: localhost
+  tasks:
+    - name: apt
+      apt:
+        update_cache: yes
+        upgrade: 'yes'

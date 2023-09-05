@@ -23,8 +23,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.1'
-          memory: '256M'
+          cpus: '0.05'
+          memory: '128M'
     networks:
       # - frontend
       - frontend

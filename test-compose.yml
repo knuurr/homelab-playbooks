@@ -8,8 +8,15 @@
   ignore_errors: "{{ ansible_check_mode }}"
   gather_facts: no
 
-  roles:
-    - role: docker-compose # Configure docker apps  
+  tasks:
+    - name: configure authelia
+      include_tasks: tasks/config-authelia.yml
+
+  # roles:
+    # - role: docker-compose # Configure docker apps  
+    # - role: mount-ext-hdd
+    # - role: samba
+    # - role: create-symlinks # Configure symlinks for Compose
       # prod_apps:
       #   - name: traefik
 

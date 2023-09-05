@@ -1,0 +1,28 @@
+# Hardening source: https://www.linode.com/content/hackersploit-docker-security-essentials-ebook/
+
+# First basic statements 
+# FROM ubuntu: 18.04
+
+
+
+# Oter settings.....
+# 
+#
+#
+
+# Add custom unpriviledged user to the container
+RUN groupadd -r alexis && useradd -r -g alexis alexis
+
+
+# Environment Variables - if applicable
+# ENV HOME /home/alexis
+# ENV DEBIAN_FRONTEND=noninteractive
+
+# As an added security measure, we can disable the root user 
+RUN chsh -s /usr/sbin/nologin root
+
+
+# You can specify the user for a
+# container with the -u option for the docker run command:
+# docker run -u alexis -it --rm cbalba6cb267 /bin/bash
+

@@ -1,0 +1,30 @@
+version: "3"
+
+
+networks:
+  backend:
+    external: true 
+
+
+services:
+  gotify:
+    image: gotify/server
+    container_name: gotify
+    # ports:
+    #   - 8080:80
+    environment:
+      # - GOTIFY_DEFAULTUSER_PASS=custom
+      - GOTIFY_DEFAULTUSER_NAME=admin
+      - GOTIFY_DEFAULTUSER_PASS=admin
+    volumes:
+      - "/opt/gotify:/app/data"
+      - ./config.yml:/etc/gotify/config.yml
+    networks:
+      - backend
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${SERVICE_NAME}.rule=Host(`${SUBDOMAIN}.${ROOT_DOMAIN}`)"
+      - "traefik.http.services.${SERVICE_NAME}.loadbalancer.server.port=${PORT}"
+      # - "traefik.docker.network=frontend"
+      - "traefik.http.routers.${SERVICE_NAME}.tls=true"
+      - "traefik.http.routers.${SERVICE_NAME}.middlewares=authelia@docker"

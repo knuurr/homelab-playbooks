@@ -4,12 +4,12 @@
     state: present
 
 - name: Add samba_user
-  become: true
+  # become: true
   user:
     name: samba_user
 
 - name: Modify samba_user shell and lock the account
-  become: true
+  # become: true
   user:
     name: samba_user
     shell: /usr/bin/nologin
@@ -34,9 +34,19 @@
   notify:
     - Restart Samba Service
 
+- name: Copy Samba Shares configuration file
+  copy:
+    src: files/smb-shares.conf
+    dest: /etc/samba/smb-shares.conf
+    owner: root
+    group: root
+    mode: "0644"
+  notify:
+    - Restart Samba Service
+
   # Temporary measure of course ; )
-- name: Change Samba password for samba_user
-  command: "smbpasswd -s samba_user"
-  args:
-    stdin: "samba\nsamba\n"
+# - name: Change Samba password for samba_user
+#   command: "smbpasswd -s samba_user"
+#   args:
+#     stdin: "samba\nsamba\n"
 

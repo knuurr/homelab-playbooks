@@ -1,0 +1,11 @@
+---
+- name: Security Updates
+  hosts: localhost
+  become: yes  # Use privilege escalation (sudo) to perform tasks
+
+  tasks:
+    - name: Update Security Packages
+      apt:
+        update_cache: yes
+        upgrade: "security"
+      when: ansible_os_family == 'Debian'  # Use 'yum' for Red Hat-based systems

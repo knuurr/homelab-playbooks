@@ -52,9 +52,9 @@ access_control:
   default_policy: one_factor # default: deny
   rules:
       - domain: vault.{{ AUTHELIA_ROOT_DOMAIN }}
-        resources:
-          - "^/api.*$"
-          - "^/notifications.*$"
+        # resources:
+        #   - "^/api.*$"
+        #   - "^/notifications.*$"
         policy: bypass
       - domain: api.{{ AUTHELIA_ROOT_DOMAIN }}
         policy: bypass

@@ -11,3 +11,7 @@
   roles:
     - mount-ext-hdd
     - samba
+
+
+  handlers:
+    - include: handlers/handlers.yml

@@ -1,4 +1,3 @@
----
 - name: Generate Homer Jinja2 template
   hosts: localhost
   gather_facts: false
@@ -11,7 +10,31 @@
 
 
   tasks:
-    - name: Generate Jinja2 template
+    - name: Generate Homer Jinja2 template
       ansible.builtin.template:
         src: files/config-homer.jinja2
-        dest: docker-compose/docker-compose-homer/config/config-homer.yml
+        dest: docker-compose/homer/config/config-homer.yml
+
+
+
+- name: Generate Authelia Jinja2 template
+  hosts: local-1
+  gather_facts: false
+  become: yes
+  become_user: root
+
+  vars_files:
+    # - vars/main.yml
+    - vars/apps.yml
+    - vars/homer.yml
+    - vars/secrets.yml
+
+
+  tasks:
+    - name: Generate Authelia config
+      include_tasks: tasks/config-authelia.yml
+
+
+
+  handlers:
+    - include: handlers/handlers.yml

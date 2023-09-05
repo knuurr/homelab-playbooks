@@ -1,0 +1,2 @@
+ACTION=="add", SUBSYSTEMS=="usb", KERNEL=="sd*", ATTRS{serial}=="6214-E4EE", ENV{SYSTEMD_WANTS}="mnt-myhdd.mount"
+ACTION=="remove", SUBSYSTEMS=="usb", KERNEL=="sd*", ATTRS{serial}=="6214-E4EE", ENV{SYSTEMD_WANTS}="mnt-myhdd.mount"

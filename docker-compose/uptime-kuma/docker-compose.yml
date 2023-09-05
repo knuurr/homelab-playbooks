@@ -1,0 +1,35 @@
+---
+version: "3"
+
+
+networks:
+  backend:
+    external: true 
+
+
+
+services:
+  uptime-kuma:
+    image: louislam/uptime-kuma:1
+    container_name: uptime-kuma
+    volumes:
+      - /opt/uptime-kuma:/app/data
+    restart: always
+    networks:
+      - backend
+    deploy:
+      resources:
+        limits:
+          cpus: '0.1'
+          memory: '512M'
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${SERVICE_NAME}.rule=Host(`${SUBDOMAIN}.${ROOT_DOMAIN}`)"
+      - "traefik.http.services.${SERVICE_NAME}.loadbalancer.server.port=${PORT}"
+      # - "traefik.docker.network=frontend"
+      - "traefik.http.routers.${SERVICE_NAME}.tls=true"
+      - "traefik.http.routers.${SERVICE_NAME}.middlewares=authelia@docker"
+      # Watchtower
+      - com.centurylinklabs.watchtower.enable=true
+      # scopes: autoupdate, monitor
+      - com.centurylinklabs.watchtower.scope=autoupdate

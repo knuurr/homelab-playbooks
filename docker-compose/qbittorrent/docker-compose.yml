@@ -1,0 +1,49 @@
+---
+version: "2.1"
+
+
+networks:
+  backend:
+    external: true 
+
+
+
+services:
+  qbittorrent:
+    image: lscr.io/linuxserver/qbittorrent:latest
+    container_name: qbittorrent
+    environment:
+      - PUID=0
+      - PGID=0
+      - TZ=Etc/UTC
+      - WEBUI_PORT=8080
+    volumes:
+      - /opt/qbittorrent:/config
+      - /mnt/myhdd/00download:/downloads
+      # Dark theme - https://github.com/brettpetch/nightwalker
+      # - ./nightwalker:/opt/nightwalker
+      # - ./VueTorrent:/opt/VueTorrent
+      - ./config/done.sh:/opt/done.sh
+    ports:
+      # - 8080:8080
+      - 6881:6881
+      - 6881:6881/udp
+    restart: unless-stopped
+    networks:
+      - backend
+    deploy:
+      resources:
+        limits:
+          cpus: '0.2'
+          memory: '512M'
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${SERVICE_NAME}.rule=Host(`${SUBDOMAIN}.${ROOT_DOMAIN}`)"
+      - "traefik.http.services.${SERVICE_NAME}.loadbalancer.server.port=${PORT}"
+      # - "traefik.docker.network=frontend"
+      - "traefik.http.routers.${SERVICE_NAME}.tls=true"
+      - "traefik.http.routers.${SERVICE_NAME}.middlewares=authelia@docker"
+      # Watchtower
+      - com.centurylinklabs.watchtower.enable=true
+      # scopes: autoupdate, monitor
+      - com.centurylinklabs.watchtower.scope=autoupdate

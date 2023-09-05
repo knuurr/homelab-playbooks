@@ -16,7 +16,7 @@ services:
       resources:
         limits:
           cpus: '0.05'
-          memory: '128M'    
+          memory: '64M'
     environment:
       # - PUID=1000
       # - PGID=1000

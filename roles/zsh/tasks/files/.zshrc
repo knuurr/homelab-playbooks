@@ -130,4 +130,14 @@ plugins=(git zsh-autosuggestions zsh-syntax-highlighting)
 source $ZSH/oh-my-zsh.sh
 
 alias ll='ls -lah'
-alias lzd='docker run --rm -it -v /var/run/docker.sock:/var/run/docker.sock -v lazydocker'
+alias lzd='docker run --rm -it -v /var/run/docker.sock:/var/run/docker.sock lazyteam/lazydocker'
+
+# Define the alias
+alias docker-netshoot='docker_run_netshoot'
+
+# Function to run the docker command with network argument
+docker_run_netshoot() {
+  network="${1:-backend}"  # Use "backend" as the default if no argument is provided
+  echo "Using network: $network"
+  docker run -it --rm --network "$network" nicolaka/netshoot
+}

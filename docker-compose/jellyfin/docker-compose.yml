@@ -6,24 +6,31 @@ networks:
 
 services:
   jellyfin:
-    image: jellyfin/jellyfin
+    # image: jellyfin/jellyfin
+    image: lscr.io/linuxserver/jellyfin:latest
     container_name: jellyfin
     # depends_on:
     #   - traefik
     #   - authelia
     security_opt:
       - no-new-privileges:true
-    user: 2000:2000
-    # environment:
-    #   - PUID=2000
-    #   - PGID=2000
-    #   - TZ=Etc/UTC
-      # - JELLYFIN_PublishedServerUrl=192.168.0.5 #optional
+    # user: 2000:2000
+    user: root
+    # ports:
+    #   - 7359:7359/udp #optional
+    #   - 1900:1900/udp #optional
+    expose:
+      - 8096
+    environment:
+      - PUID=0
+      - PGID=0
+      - TZ=Etc/UTC
+      - JELLYFIN_PublishedServerUrl=http://${SUBDOMAIN}.${ROOT_DOMAIN} #optional
     volumes:
       - /opt/jellyfin/config:/config
-      - /opt/jellyfin/cache:/cache
+      # - /opt/jellyfin/cache:/cache
       # - /path/to/tvseries:/data/tvshows
-      - /media/movies:/media
+      - /mnt/myhdd/Muzyka_DB2:/data/music
     restart: 'unless-stopped'
     # Optional - alternative address used for autodiscovery
     # environment:
@@ -45,3 +52,26 @@ services:
       # - "traefik.docker.network=frontend"
       - "traefik.http.routers.${SERVICE_NAME}.tls=true"
       - "traefik.http.routers.${SERVICE_NAME}.middlewares=authelia@docker"
+      ## Middleware
+      # - 'traefik.http.routers.jellyfin.middlewares=jellyfin-mw'
+      #### The customResponseHeaders option lists the Header names and values to apply to the response.
+      # #### The customResponseHeaders option lists the Header names and values to apply to the response.
+      # - 'traefik.http.middlewares.jellyfin-mw.headers.customResponseHeaders.X-Robots-Tag=noindex,nofollow,nosnippet,noarchive,notranslate,noimageindex'
+      # #### The stsSeconds is the max-age of the Strict-Transport-Security header. If set to 0, would NOT include the header.
+      # - 'traefik.http.middlewares.jellyfin-mw.headers.STSSeconds=315360000'
+      # #### The stsIncludeSubdomains is set to true, the includeSubDomains directive will be
+      # #### appended to the Strict-Transport-Security header.
+      # - 'traefik.http.middlewares.jellyfin-mw.headers.STSIncludeSubdomains=true'
+      # #### Set stsPreload to true to have the preload flag appended to the Strict-Transport-Security header.
+      # - 'traefik.http.middlewares.jellyfin-mw.headers.STSPreload=true'
+      # #### Set forceSTSHeader to true, to add the STS header even when the connection is HTTP.
+      # - 'traefik.http.middlewares.jellyfin-mw.headers.forceSTSHeader=true'
+      # #### Set frameDeny to true to add the X-Frame-Options header with the value of DENY.
+      # - 'traefik.http.middlewares.jellyfin-mw.headers.frameDeny=true'
+      # #### Set contentTypeNosniff to true to add the X-Content-Type-Options header with the value nosniff.
+      # - 'traefik.http.middlewares.jellyfin-mw.headers.contentTypeNosniff=true'
+      # #### Set browserXssFilter to true to add the X-XSS-Protection header with the value 1; mode=block.
+      # - 'traefik.http.middlewares.jellyfin-mw.headers.customresponseheaders.X-XSS-PROTECTION=0'
+      # #### The customFrameOptionsValue allows the X-Frame-Options header value to be set with a custom value. This
+      # #### overrides the FrameDeny option.
+      # - "traefik.http.middlewares.jellyfin-mw.headers.customFrameOptionsValue='allow-from https://DOMAIN_NAME'"

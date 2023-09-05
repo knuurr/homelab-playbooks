@@ -22,7 +22,7 @@ services:
       - OAUTHLIB_RELAX_TOKEN_SCOPE=1 #optional
     volumes:
       - /opt/calibre-web/config:/config
-      - /media/books:/books
+      # - /media/books:/books
     #ports:
     #  - 8083:8083
     restart: on-failure:3

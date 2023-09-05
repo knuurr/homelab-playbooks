@@ -36,14 +36,17 @@
     - role: sudo # setup sudo config
     # - role: autoupdate-Debian
     - role: hifis.unattended_upgrades
+      # debug your choice using `unattended-upgrades -d` command on a target system.
       # Do automatic removal of all unused dependencies after the upgrade
       unattended_remove_unused_dependencies: true
       # Remove unused automatically installed kernel-related packages (kernel images, kernel headers and kernel version locked tools)
       unattended_remove_unused_kernel_packages: true 
-      unattended_update_days: {"Tue"}
+      unattended_update_days: 2
       # Define verbosity level of APT for periodic runs. The output will be sent to root.
       unattended_verbose: 2
-      when: ansible_facts['os_family'] == 'Debian' 
+      # Choose on what event to send an email. Possible values are "always", "only-on-error" or "on-change".
+      unattended_mail_report: on-change
+      # when: ansible_facts['os_family'] == 'Debian'
     - role: tmux # install and configure tmux
     - role: vim # ensure proper vim config
     - role: zsh # install zsh on machine, set it for admin suer
@@ -56,6 +59,7 @@
           oh_my_zsh_write_zshrc: false
     - role: zsh-plugins # configure oh-my-zsh plugins
     - role: docker-infra # setup docker infrastructure
+    # - role: create-symlinks # Configure symlinks for Compose
     - role: ufw # configure UFW firewall
     - role: install-ext-hdd # mount external HDD
     - role: samba # install and configure Samba - important to run after "install-ext-hdd", or it will fail

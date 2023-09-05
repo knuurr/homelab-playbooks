@@ -1,0 +1,16 @@
+---
+- name: Kernel Updates
+  hosts: localhost
+  become: yes  # Use privilege escalation (sudo) to perform tasks
+
+  tasks:
+    - name: Install Kernel Updates
+      apt:
+        name: linux-image-generic
+        state: latest
+      when: ansible_os_family == 'Debian'  # Use 'yum' for Red Hat-based systems
+
+    # - name: Reboot Servers
+    #   reboot:
+    #     reboot_timeout: 300  # Adjust as needed
+    #   when: ansible_os_family == 'Debian'  # Use 'yum' for Red Hat-based systems

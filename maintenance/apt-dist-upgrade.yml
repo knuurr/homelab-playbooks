@@ -1,0 +1,8 @@
+---
+- name: Run apt dist-upgrade
+- hosts: localhost
+  tasks:
+    - name: apt
+      apt:
+        update_cache: yes
+        upgrade: 'dist'

@@ -1,0 +1,40 @@
+---
+# https://github.com/slskd/slskd/
+version: "2"
+
+
+networks:
+  backend:
+    external: true 
+
+
+services:
+  slskd:
+    image: slskd/slskd
+    container_name: slskd
+    # user: root
+    ports:
+      # - "5030:5030"
+      # - "5031:5031"
+      - "50300:50300"
+    environment:
+      - SLSKD_REMOTE_CONFIGURATION=false
+    volumes:
+      - /opt/slskd:/app
+      - /mnt/myhdd/slskd:/media/slskd
+      # Configuration is loaded from the YAML file located at <application directory>/slskd.yml after environment variables
+      - ./config/slskd.yml:/app/slskd.yml
+    restart: always
+    networks:
+      - backend
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${SERVICE_NAME}.rule=Host(`${SUBDOMAIN}.${ROOT_DOMAIN}`)"
+      - "traefik.http.services.${SERVICE_NAME}.loadbalancer.server.port=${PORT}"
+      # - "traefik.docker.network=frontend"
+      - "traefik.http.routers.${SERVICE_NAME}.tls=true"
+      - "traefik.http.routers.${SERVICE_NAME}.middlewares=authelia@docker"
+      # Watchtower
+      - com.centurylinklabs.watchtower.enable=true
+      - com.centurylinklabs.watchtower.scope=autoupdate
+      # - centurylinklabs.watchtower.monitor-only="true"

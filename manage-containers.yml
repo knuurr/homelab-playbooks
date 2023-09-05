@@ -10,7 +10,9 @@
   
   # ansible-playbook -i inventory playbook.yml -e "t_restart=['container1', 'container2']"
   vars:
-    t_restart: [homer]  # List of containers to restart
+    # Restart all at once
+    # t_restart: [all]  # List of containers to restart
+    t_restart: []  # List of containers to restart
     t_start: []    # List of containers to start
     t_stop: []     # List of containers to stop
     t_recreate: [] # List of containers to recreate
@@ -49,6 +51,13 @@
         mode: 0755
         state: directory 
         recurse: yes
+      
+    - name: Permission quickfix for Qbittorrent scirpt
+      file:
+        path: "{{ compose_file_path }}/qbittorrent/done.sh"
+        mode: 0770
+        # state: directory 
+        # recurse: yes
 
     - name: restart ALL Containers
       docker_compose:
@@ -56,10 +65,10 @@
         state: present
         restarted: true
       # when: t_restart | length > 0
-      loop: "{{ t_restart }}"
+      loop: "{{ prod_apps }}"
       when: "'all' in t_restart"
 
-    - name: Some Restart Containers
+    - name: Restart Some Containers
       docker_compose:
         project_src: "{{ compose_file_path }}/{{ item }}/"
         state: present
@@ -80,7 +89,7 @@
 
     - name: Stop Some Containers
       docker_compose:
-        project_src: "{{ compose_file_path }}{{ item }}/"
+        project_src: "{{ compose_file_path }}/{{ item }}/"
         state: absent
       when: t_stop | length > 0
       loop: "{{ t_stop }}"

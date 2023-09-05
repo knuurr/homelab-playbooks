@@ -23,8 +23,9 @@ services:
     security_opt:
       - no-new-privileges:true    
     restart: unless-stopped
-    # user: 2000:2000
-    # environment:
+    # user: root
+    environment:
+      - N8N_BASIC_AUTH_ACTIVE=false
     #   - DB_TYPE=mariadb
     #   - DB_MYSQLDB_HOST=db
     #   - DB_MYSQLDB_DATABASE=${MARIADB_DATABASE}
@@ -36,10 +37,15 @@ services:
     #   - db
     volumes:
       - /opt/n8n:/files
-    command: n8n start --tunnel
+    command: n8n start
     # depends_on:
     #   db:
     #     condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          cpus: '0.1'
+          memory: '256M'
     networks:
       - backend
     labels:

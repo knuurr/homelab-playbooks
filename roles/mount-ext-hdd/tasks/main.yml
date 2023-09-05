@@ -20,3 +20,18 @@
 
 
   
+- name: Copy udev rule for automatic mounting on USB
+  copy:
+    src: files/99-myhdd.rules
+    dest: /etc/udev/rules.d/99-mnt-myhdd.rules
+    owner: root
+    group: root
+    mode: '0644'
+  notify: Reload udev rules
+
+
+- name: Enable myhdd.mount
+  systemd:
+    name: mnt-myhdd.mount
+    enabled: yes
+    state: started

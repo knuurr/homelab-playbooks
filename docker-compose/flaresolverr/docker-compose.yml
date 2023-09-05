@@ -1,0 +1,68 @@
+---
+version: "3"
+
+
+networks:
+  backend:
+    external: true 
+
+# Hardening source: https://www.linode.com/content/hackersploit-docker-security-essentials-ebook/
+
+# TO ADD:
+# PREVENTING PRIVILEGE ESCALATION ATTACKS
+# docker run --security-opt=no-new-privileges <IMAGE-ID>
+# The no-new-privileges option will stop container processes from gaining any additional privileges.
+# LIMITING CONTAINER CAPABILITIES
+# You also can run a container with the --privileged flag, which gives it all of the kernel capability options.
+#  However, this is never recommended 
+# We can remove all kernel capabilities when running a container with the following options:
+# docker run --cap-drop all <IMAGE-ID>
+# 2. You can also add the specific kernel capabilities required by your containers by running the following command:
+# docker run --cap-drop all --cap-add <CAPABILITY> <IMAGE-ID>
+
+services:
+  flaresolverr:
+    image: ghcr.io/flaresolverr/flaresolverr:latest
+    container_name: flaresolverr
+    # For custom Docker user
+    # build:
+    #   context: "."
+    #   target: "app"
+    #   args:
+    #     - "UID=${UID:-2000}"
+    #     - "GID=${GID:-2000}"
+    # user: dockeruser
+    # volumes:
+    #   - /opt/path:/path
+    restart: always
+    networks:
+      - backend
+    ### Seucrity ###
+    # cap_add:
+    #   - CAP_NET_ADMIN
+    # security_opt:
+    #   - seccomp:unconfined
+    deploy:
+      resources:
+        limits:
+          cpus: '0.4'
+          memory: '1024M'
+    environment:
+      # - ENV:VAR
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - LOG_HTML=${LOG_HTML:-false}
+      - CAPTCHA_SOLVER=${CAPTCHA_SOLVER:-none}
+      - TZ=Europe/Warsaw
+    expose:
+      - 8191
+    # labels:
+      # - "traefik.enable=true"
+      # - "traefik.http.routers.${SERVICE_NAME}.rule=Host(`${SUBDOMAIN}.${ROOT_DOMAIN}`)"
+      # - "traefik.http.services.${SERVICE_NAME}.loadbalancer.server.port=${PORT}"
+      # - "traefik.docker.network=frontend"
+      # - "traefik.http.routers.${SERVICE_NAME}.tls=true"
+      # - "traefik.http.routers.${SERVICE_NAME}.middlewares=authelia@docker"
+      # Watchtower
+      # - com.centurylinklabs.watchtower.enable=true
+      # scopes: autoupdate, monitor
+      # - com.centurylinklabs.watchtower.scope=autoupdate

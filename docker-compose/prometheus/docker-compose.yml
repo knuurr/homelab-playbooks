@@ -13,12 +13,12 @@ services:
     #   TRAEFIK_PASSWORD: 'traefik2020'
     container_name: "prometheus"
     volumes: 
-      - "./config/prometheus/:/etc/prometheus"
+      - "./config:/etc/prometheus"
       - "/opt/prometheus:/prometheus"
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--storage.tsdb.path=/prometheus'
-      - '--storage.tsdb.retention.size=256MB'
+      # - '--storage.tsdb.retention.size=256MB'
       - --storage.tsdb.retention.time=21d
     labels:
       - "traefik.enable=true"

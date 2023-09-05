@@ -7,13 +7,14 @@ networks:
 
 services:
   cadvisor:
-    image: gcr.io/cadvisor/cadvisor:v0.47.0     
+    image: gcr.io/cadvisor/cadvisor:v0.47.2
     container_name: cadvisor
     command:
       # https://dev.to/cloudx/taming-cadvisors-high-cpu-usage-1nm5
       - "--housekeeping_interval=30s"
       - "--docker_only=true"
-      - "--disable_metrics=percpu,sched,tcp,udp,disk,diskIO,cpu_topology"
+      # https://github.com/google/cadvisor/issues/3139
+      - "--disable_metrics=percpu,sched,disk,diskIO,cpu_topology,referenced_memory"
     # ports:
     #   - 8080:8080
     expose:
@@ -29,5 +30,10 @@ services:
       - /dev/disk/:/dev/disk:ro
     devices:
       - /dev/kmsg
+    deploy:
+      resources:
+        limits:
+          cpus: '0.2'
+          memory: '256M'
     privileged: true
-    restart: unless-stopped
+    restart: always

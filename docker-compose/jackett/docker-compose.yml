@@ -16,7 +16,7 @@ services:
       - PUID=2000
       - PGID=2000
       - TZ=Etc/UTC
-      - AUTO_UPDATE=true #optional
+      # - AUTO_UPDATE=true #optional
       - RUN_OPTS= #optional
     volumes:
       - /opt/jackett:/config
@@ -26,6 +26,11 @@ services:
     networks:
       - backend 
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '0.1'
+          memory: '256M'
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.${SERVICE_NAME}.rule=Host(`${SUBDOMAIN}.${ROOT_DOMAIN}`)"
@@ -33,6 +38,11 @@ services:
       - "traefik.http.services.${SERVICE_NAME}.loadbalancer.server.port=${PORT}"
       - "traefik.http.routers.${SERVICE_NAME}.tls=true"
       - "traefik.http.routers.${SERVICE_NAME}.middlewares=authelia@docker"
+      # Watchtower
+      - com.centurylinklabs.watchtower.enable=true
+      # scopes: autoupdate, monitor
+      - com.centurylinklabs.watchtower.scope=autoupdate
+      # - com.centurylinklabs.watchtower.monitor-only="true"
 
 
     

@@ -24,6 +24,11 @@ services:
     restart: on-failure:3
     networks:
       - backend
+    deploy:
+      resources:
+        limits:
+          cpus: '0.2'
+          memory: '256M'
     labels:
       - "traefik.enable=true"
       # With this setup, when a request comes to Traefik with a path like /api/app/lol/1, Traefik will strip the /api prefix before forwarding the request to the app service

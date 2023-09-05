@@ -1,0 +1,9 @@
+---
+- name: Configure Timezone
+  hosts: localhost
+  become: yes  # Use privilege escalation (sudo) to perform tasks
+
+  tasks:
+    - name: Set Timezone
+      timezone:
+        name: 'Europe/Warsaw'  # Replace with your desired timezone, e.g., "Europe/London"

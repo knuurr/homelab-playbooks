@@ -1,0 +1,15 @@
+# CAN'T USE BECAUSE OF EXFAT 
+- name: Create symlink directory for ext HDD
+  file:
+    path: "/mnt/symlinks"
+    state: directory
+
+
+- name: Create symbolic links for ext HDD
+  file:
+    src: "/mnt/symlinks/{{ item.source }}"
+    dest: "{{ item.destination }}"
+    state: hard
+    force: yes
+  # sourced from apps.yml
+  loop: "{{ symlink_items }}"
