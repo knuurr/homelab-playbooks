@@ -1,6 +1,6 @@
 ---
-- name: Run apt dist-upgrade
-- hosts: localhost
+- name: Upgrade the OS (apt-get dist-upgrade)
+  hosts: localhost
   tasks:
     - name: apt
       apt:

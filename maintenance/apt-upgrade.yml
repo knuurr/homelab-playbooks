@@ -1,6 +1,6 @@
 ---
-- name: Run apt upgrade
-- hosts: localhost
+- name: Update packages
+  hosts: localhost
   tasks:
     - name: apt
       apt:

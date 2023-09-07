@@ -12,9 +12,9 @@ services:
     image: semaphoreui/semaphore:latest
     container_name: semaphore
     # Custom user
-    user: dockeruser
+    user: root
     volumes:
-      - /opt/semaphore:/etc/semaphore # config.json location
+      - /opt/semaphore/home:/etc/semaphore # config.json location
       - /opt/semaphore/lib:/var/lib/semaphore # database.boltdb location (Not required if using mysql or postgres)
     restart: always
     networks:
@@ -32,10 +32,10 @@ services:
     ## Env vars ####
     environment:
       SEMAPHORE_DB_DIALECT: bolt
-      SEMAPHORE_ADMIN_PASSWORD: changeme
+      SEMAPHORE_ADMIN_PASSWORD: ${PASSWORD}
       SEMAPHORE_ADMIN_NAME: admin
       SEMAPHORE_ADMIN_EMAIL: admin@localhost
-      SEMAPHORE_ADMIN: admin
+      SEMAPHORE_ADMIN: ${ADMIN}
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.${SERVICE_NAME}.rule=Host(`${SUBDOMAIN}.${ROOT_DOMAIN}`)"

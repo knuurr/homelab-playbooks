@@ -3,7 +3,24 @@
   hosts: localhost
   become: yes  # Use privilege escalation (sudo) to perform tasks
 
+  vars:
+    desired_timezone: 'Europe/Warsaw'  # Replace with your desired timezone, e.g., "Europe/London"
+
+
   tasks:
+    - name: Get Current Timezone
+      command: timedatectl show --property=Timezone --value
+      register: current_timezone
+      changed_when: false  # Do not consider this task as changed
+
+
     - name: Set Timezone
       timezone:
-        name: 'Europe/Warsaw'  # Replace with your desired timezone, e.g., "Europe/London"
+        name: "{{ desired_timezone }}"
+      register: timezone_result
+
+
+    - name: Debug Timezone Change
+      debug:
+        msg: "Timezone has been changed from {{ current_timezone.stdout }} to {{ desired_timezone }}"
+      when: timezone_result.changed

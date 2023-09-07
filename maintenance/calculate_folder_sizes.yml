@@ -1,0 +1,32 @@
+---
+- name: Calculate Folder Sizes
+  hosts: localhost
+  become: yes  # Use privilege escalation (sudo) to perform tasks
+
+  # vars:
+  #   folder_path: /path/to/your/folder  # Replace with the folder path you want to analyze
+  #   folder_summary: /path/to/summary/folder  # Replace with the path where the summary will be stored
+
+  tasks:
+    - name: Check if folder_path is defined
+      fail:
+        msg: "The 'folder_path' variable is not defined. Please specify the folder path using -e folder_path=/your/folder/path or in your tool."
+      when: folder_path is not defined
+
+
+    - name: Get Folder Summary
+      shell: du -sh {{ folder_path }} 2>/dev/null
+      register: folder_summary_size
+
+    - name: Display Folder Summary Size
+      debug:
+        msg: "Total size of '{{ folder_path }}': {{ folder_summary_size.stdout.split('\t')[0] }}"
+
+    - name: Get Individual Folder Sizes
+      shell: "du -ah --max-depth=1 {{ folder_path }} | sort -rh"
+      register: individual_folder_sizes
+
+    - name: Display Individual Folder Sizes
+      debug:
+        msg: "{{ item }}"
+      loop: "{{ individual_folder_sizes.stdout_lines }}"

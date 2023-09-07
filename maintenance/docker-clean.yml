@@ -1,13 +1,14 @@
 ---
-- name: clean docker
+- name: Clean Docker
   hosts: localhost
+  # gather_facts: no
   tasks:
     - name: prune non-dangling images
       community.docker.docker_prune:
         containers: false
         images: true
         images_filters:
-          dangling: false
+          dangling: true
         networks: false
         volumes: false
-        builder_cache: false
+        builder_cache: true
