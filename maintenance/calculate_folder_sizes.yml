@@ -22,11 +22,15 @@
       debug:
         msg: "Total size of '{{ folder_path }}': {{ folder_summary_size.stdout.split('\t')[0] }}"
 
-    - name: Get Individual Folder Sizes
-      shell: "du -ah --max-depth=1 {{ folder_path }} | sort -rh"
-      register: individual_folder_sizes
-
     - name: Display Individual Folder Sizes
       debug:
-        msg: "{{ item }}"
-      loop: "{{ individual_folder_sizes.stdout_lines }}"
+        msg: "Individual Folder Sizes inside {{ folder_path }}:"
+
+    - name: Get Individual Folder Sizes
+      shell: "du -ah --max-depth=1 {{ folder_path }} | sort -rh"
+    #   register: individual_folder_sizes
+
+    # - name: Display Individual Folder Sizes
+    #   debug:
+    #     msg: "{{ item }}"
+    #   loop: "{{ individual_folder_sizes.stdout_lines }}"

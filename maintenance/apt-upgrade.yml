@@ -1,6 +1,7 @@
 ---
 - name: Update packages
   hosts: localhost
+  become: true
   tasks:
     - name: apt
       apt:

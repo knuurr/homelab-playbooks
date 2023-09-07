@@ -1,6 +1,7 @@
 ---
 - name: Upgrade the OS (apt-get dist-upgrade)
   hosts: localhost
+  become: true
   tasks:
     - name: apt
       apt:
