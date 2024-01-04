@@ -2,6 +2,7 @@
 - name: Calculate Folder Sizes
   hosts: localhost
   become: yes  # Use privilege escalation (sudo) to perform tasks
+  gather_facts: no
 
   # vars:
   #   folder_path: /path/to/your/folder  # Replace with the folder path you want to analyze
@@ -28,9 +29,9 @@
 
     - name: Get Individual Folder Sizes
       shell: "du -ah --max-depth=1 {{ folder_path }} | sort -rh"
-    #   register: individual_folder_sizes
+      register: individual_folder_sizes
 
-    # - name: Display Individual Folder Sizes
-    #   debug:
-    #     msg: "{{ item }}"
-    #   loop: "{{ individual_folder_sizes.stdout_lines }}"
+    - name: Display Individual Folder Sizes
+      debug:
+        msg: "{{ item }}"
+      loop: "{{ individual_folder_sizes.stdout_lines }}"

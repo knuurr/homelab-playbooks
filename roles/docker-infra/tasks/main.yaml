@@ -36,6 +36,13 @@
       - docker
     append: true
 
+- name: "Add ansible user, to Docker group, as Unix secondary group"
+  user:
+    name: "ansible"
+    groups:
+      - docker
+    append: true
+
 
 # - name: Create a Docker container
 #   # become: true

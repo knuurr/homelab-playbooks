@@ -6,7 +6,7 @@ networks:
 version: "2"
 services:
   homer:
-    image: b4bz/homer
+    image: b4bz/homer:latest
     #To build from source, comment previous line and uncomment below
     #build: .
     container_name: homer
@@ -19,7 +19,7 @@ services:
     user: root # default
     environment:
       - INIT_ASSETS=1 # default
-    restart: on-failure:3
+    restart: always
     deploy:
       resources:
         limits:
@@ -37,3 +37,17 @@ services:
       # - "traefik.docker.network=frontend"
       - "traefik.http.routers.${SERVICE_NAME}.tls=true"
       - "traefik.http.routers.${SERVICE_NAME}.middlewares=authelia@docker,secured@file"
+  homer-service-discovery:
+    image: ghcr.io/calvinbui/homer-service-discovery:latest
+    container_name: homer-service-discovery
+    volumes:
+      - ./config/config-homer.yml:/config.yml
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      # For Homer autodiscovery by label
+      - ./base.yml:/base.yml
+    restart: always
+
+
+
+# version: '3'
+# services:

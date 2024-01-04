@@ -11,7 +11,7 @@ services:
     image: sentriz/betanin
     # ports:
     #   - 9393:9393
-    restart: unless-stopped
+    restart: always
     environment:
       - UID=0 # (optionally) set user id
       - GID=0 # (optionally) set group id
@@ -34,3 +34,12 @@ services:
       # - "traefik.docker.network=frontend"
       - "traefik.http.routers.${SERVICE_NAME}.tls=true"
       - "traefik.http.routers.${SERVICE_NAME}.middlewares=authelia@docker"
+      # Homer labels
+      - "homer.enable=true"
+      - "homer.service=Downloading"
+      - "homer.name=Betanin"
+      - "homer.subtitle=beets based mitm of your torrent client and music player "
+      - "homer.logo=icons/nginx.png"
+      # - homer.priority=2
+      - "homer.target=_blank"
+      - "homer.url=https://${SUBDOMAIN}.${ROOT_DOMAIN}"

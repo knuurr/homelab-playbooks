@@ -80,6 +80,15 @@ services:
       # - "traefik.docker.network=frontend"
       - "traefik.http.routers.${SERVICE_NAME}.tls=true"
       - "traefik.http.routers.${SERVICE_NAME}.middlewares=authelia@docker"
+      # Homer labels
+      - "homer.enable=true"
+      - "homer.service=Media & Fun"
+      - "homer.name=Paperless-ngx"
+      - "homer.subtitle=Open-source document management system that transforms your physical documents into a searchable online archive."
+      - "homer.logo=icons/paperless-ng.png"
+      # - homer.priority=2
+      - "homer.target=_blank"
+      - "homer.url=https://${SUBDOMAIN}.${ROOT_DOMAIN}"
 
   gotenberg:
     image: docker.io/gotenberg/gotenberg:7.8

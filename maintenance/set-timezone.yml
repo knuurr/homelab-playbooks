@@ -2,6 +2,7 @@
 - name: Configure Timezone
   hosts: localhost
   become: yes  # Use privilege escalation (sudo) to perform tasks
+  gather_facts: no
 
   vars:
     desired_timezone: 'Europe/Warsaw'  # Replace with your desired timezone, e.g., "Europe/London"
@@ -13,6 +14,10 @@
       register: current_timezone
       changed_when: false  # Do not consider this task as changed
 
+    - name: Output Configured Timezone Before Change
+      debug:
+      msg: "Current timezone is {{ current_timezone.stdout }}"
+
 
     - name: Set Timezone
       timezone:
@@ -20,7 +25,12 @@
       register: timezone_result
 
 
-    - name: Debug Timezone Change
+    - name: Timezone Changed
       debug:
         msg: "Timezone has been changed from {{ current_timezone.stdout }} to {{ desired_timezone }}"
       when: timezone_result.changed
+
+    - name: No Timezone Change Needed
+      debug:
+        msg: "No need to perform timezone update"
+      when: not timezone_result.changed

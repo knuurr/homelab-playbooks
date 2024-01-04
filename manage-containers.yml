@@ -12,10 +12,10 @@
   vars:
     # Restart all at once
     # t_restart: [all]  # List of containers to restart
-    t_restart: [homer]  # List of containers to restart
+    t_restart: []  # List of containers to restart
     t_start: []    # List of containers to start
     t_stop: []     # List of containers to stop
-    t_recreate: [] # List of containers to recreate
+    t_recreate: [semaphore, uptime-kuma, betanin] # List of containers to recreate
 
 
 
@@ -103,6 +103,7 @@
         nocache: true
         restarted: true
         recreate: always
+        pull: yes  # Add this line to pull the latest image before recreating
       when: t_recreate | length > 0
       loop: "{{ t_recreate }}"
       # loop_control:

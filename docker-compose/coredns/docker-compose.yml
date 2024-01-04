@@ -9,4 +9,4 @@ services:
       - "53:53/tcp"
     volumes:
       - ./config/Corefile:/etc/coredns/Corefile
-    restart: always
+    restart: never

@@ -16,6 +16,7 @@ services:
     volumes:
       - /opt/semaphore/home:/etc/semaphore # config.json location
       - /opt/semaphore/lib:/var/lib/semaphore # database.boltdb location (Not required if using mysql or postgres)
+      - /srv/docker-compose/n8n/_playbooks:/files/playbooks
     restart: always
     networks:
       - backend
@@ -47,3 +48,12 @@ services:
       # - com.centurylinklabs.watchtower.enable=true
       # scopes: autoupdate, monitor
       # - com.centurylinklabs.watchtower.scope=autoupdate
+      # Homer labels
+      - "homer.enable=true"
+      - "homer.service=Tools"
+      - "homer.name=Ansible Semaphore"
+      - "homer.subtitle=Modern UI for Ansible."
+      - "homer.logo=icons/nginx.png"
+      # - homer.priority=2
+      - "homer.target=_blank"
+      - "homer.url=https://${SUBDOMAIN}.${ROOT_DOMAIN}"

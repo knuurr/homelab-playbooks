@@ -21,7 +21,7 @@ services:
       # - /opt/portainer:/data
       - "/opt/portainer:/data"
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
-    restart: on-failure:3
+    restart: always
     networks:
       - backend
     deploy:
@@ -44,3 +44,12 @@ services:
       - "traefik.http.routers.${SERVICE_NAME}.tls=true"
       # - "traefik.http.routers.${SERVICE_NAME}.service=portainer"
       # - "traefik.http.routers.portainer.middlewares=authelia@docker"
+      # Homer labels
+      - "homer.enable=true"
+      - "homer.service=Dashboards"
+      - "homer.name=Portainer"
+      - "homer.subtitle=Container management software to deploy, troubleshoot, and secure applications "
+      - "homer.logo=icons/portainer.png"
+      # - homer.priority=2
+      - "homer.target=_blank"
+      - "homer.url=https://${SUBDOMAIN}.${ROOT_DOMAIN}"

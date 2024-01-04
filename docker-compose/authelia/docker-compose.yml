@@ -61,6 +61,15 @@ services:
       - com.centurylinklabs.watchtower.enable=true
       # scopes: autoupdate, monitor
       - com.centurylinklabs.watchtower.scope=monitor
+      # Homer labels
+      - "homer.enable=true"
+      - "homer.service=Dashboards"
+      - "homer.name=Authelia"
+      # - "homer.subtitle=http-echo server"
+      - "homer.logo=icons/authelia.png"
+      # - homer.priority=2
+      - "homer.target=_blank"
+      - "homer.url=https://${SUBDOMAIN}.${ROOT_DOMAIN}"
     expose:
       - ${PORT}
     healthcheck:

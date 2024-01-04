@@ -1,0 +1,6 @@
+# needs update
+tasks:
+  - name: Generate Homer Jinja2 template
+    ansible.builtin.template:
+      src: files/config-homer.jinja2
+      dest: docker-compose/homer/config/config-homer.yml

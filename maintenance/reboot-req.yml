@@ -4,12 +4,14 @@
   become: yes
   gather_facts: no  
   tasks:
+    
     - name: check if system reboot is required
       become: true
       stat:
         path: /var/run/reboot-required
       register: reboot_required
       no_log: yes
+    
     - debug:
         msg: "Reboot is required"
       when: reboot_required.stat.exists

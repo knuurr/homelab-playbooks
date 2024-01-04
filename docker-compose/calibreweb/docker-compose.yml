@@ -9,6 +9,7 @@ services:
   calibre-web:
     image: lscr.io/linuxserver/calibre-web:latest
     container_name: calibre-web
+    restart: always
     # depends_on:
     #   - traefik
     #   - authelia
@@ -21,11 +22,11 @@ services:
       - DOCKER_MODS=linuxserver/mods:universal-calibre #optional
       - OAUTHLIB_RELAX_TOKEN_SCOPE=1 #optional
     volumes:
-      - /opt/calibre-web/config:/config
+      - ${DATA}/calibre-web/config:/config
       # - /media/books:/books
+      - "${MEDIA}/00_Backup_random/Losowe książki:/books"
     #ports:
     #  - 8083:8083
-    restart: on-failure:3
     networks:
       - backend
     labels:
@@ -36,4 +37,12 @@ services:
       # - "traefik.http.routers.${SERVICE_NAME}.entrypoints=web"
       - "traefik.http.routers.${SERVICE_NAME}.tls=true"
       - traefik.http.routers.${SERVICE_NAME}.middlewares=authelia@docker
-
+        # Homer labels
+      - "homer.enable=true"
+      - "homer.service=Media & Fun"
+      - "homer.name=Calibre Web"
+      - "homer.subtitle=Calibre Web server"
+      - "homer.logo=icons/calibreweb.png"
+      # - homer.priority=2
+      - "homer.target=_blank"
+      - "homer.url=https://${SUBDOMAIN}.${ROOT_DOMAIN}"

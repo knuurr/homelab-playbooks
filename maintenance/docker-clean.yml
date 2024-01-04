@@ -1,6 +1,7 @@
 ---
 - name: Clean Docker
   hosts: localhost
+  gather_facts: no
   # gather_facts: no
   tasks:
     - name: prune non-dangling images

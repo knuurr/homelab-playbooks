@@ -38,3 +38,12 @@ services:
       - com.centurylinklabs.watchtower.enable=true
       - com.centurylinklabs.watchtower.scope=autoupdate
       # - centurylinklabs.watchtower.monitor-only="true"
+      # Homer labels
+      - "homer.enable=true"
+      - "homer.service=Downloading"
+      - "homer.name=slskd"
+      - "homer.subtitle=modern client-server application for the Soulseek file sharing network"
+      - "homer.logo=icons/slskd.png"
+      # - homer.priority=2
+      - "homer.target=_blank"
+      - "homer.url=https://${SUBDOMAIN}.${ROOT_DOMAIN}"

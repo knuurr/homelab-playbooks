@@ -33,3 +33,12 @@ services:
       - com.centurylinklabs.watchtower.enable=true
       # scopes: autoupdate, monitor
       - com.centurylinklabs.watchtower.scope=autoupdate
+      # Homer labels
+      - "homer.enable=true"
+      - "homer.service=Tools"
+      - "homer.name=Uptime Kuma"
+      - "homer.subtitle=A self-hosted monitoring tool"
+      - "homer.logo=icons/uptimekuma.png"
+      # - homer.priority=2
+      - "homer.target=_blank"
+      - "homer.url=https://${SUBDOMAIN}.${ROOT_DOMAIN}"

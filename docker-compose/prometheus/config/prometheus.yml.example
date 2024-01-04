@@ -1,0 +1,35 @@
+global:
+  scrape_interval: 30s
+  scrape_timeout: 20s
+  # evaluation_interval: 15s
+  # external_labels:
+  #     monitor: 'my-project'
+
+rule_files:
+  - 'alert.rules'
+
+scrape_configs:
+  - job_name: 'prometheus'
+    # scrape_interval: 5s
+    static_configs:
+         - targets: ['localhost:9090']
+
+  # - job_name: traefik
+  #   metrics_path: /metrics
+  #   static_configs:
+  #     - targets:
+  #       - traefik:8082
+
+  - job_name: node-exporter
+    # metrics_path: /metrics
+    static_configs:
+      - targets: ['node-exporter:9100']
+
+
+  # Example job for cadvisor
+  - job_name: 'cadvisor'
+    scrape_interval: 4m
+    scrape_timeout: 1m
+    static_configs:
+      - targets: ['cadvisor:8080']
+

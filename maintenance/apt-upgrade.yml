@@ -1,9 +1,46 @@
+# ---
+# - name: Update packages
+#   hosts: localhost
+#   become: true
+#   tasks:
+#     - name: apt
+#       apt:
+#         update_cache: yes
+#         upgrade: 'yes'
+
+
+# Experimental
 ---
 - name: Update packages
   hosts: localhost
   become: true
   tasks:
-    - name: apt
+    - name: Update package information
       apt:
         update_cache: yes
+      register: apt_update_result
+
+    - name: Get the number of packages to update
+      set_fact:
+        packages_to_update: "{{ apt_update_result | json_query('cache_updated | length') | default(0) }}"
+
+    - name: Print packages to update
+      debug:
+        msg: "Number of packages to update: {{ packages_to_update }}"
+      when: packages_to_update > 0
+
+    - name: Perform package upgrade
+      apt:
         upgrade: 'yes'
+      register: apt_upgrade_result
+      when: packages_to_update > 0
+
+    - name: Print packages updated
+      debug:
+        msg: "{{ packages_to_update }} package(s) updated."
+      when: apt_upgrade_result.changed
+
+    - name: Print information when everything is up to date
+      debug:
+        msg: "All packages are up to date."
+      when: packages_to_update == 0

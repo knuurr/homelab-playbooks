@@ -2,7 +2,7 @@
   file:
     path: /etc/authelia
     state: directory
-    mode: 0644
+    mode: 0755
     owner: root
     group: root
 
@@ -18,7 +18,7 @@
   notify: "Restart Authelia"
 
 
-- name: Upload AUTHELIA static user DB
+- name: Upload Authelia static user DB
   copy: 
     src: files/authelia-users_database.yml
     dest: /etc/authelia/users_database.yml

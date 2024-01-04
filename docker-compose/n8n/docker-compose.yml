@@ -15,14 +15,14 @@ networks:
 
 services:
   n8n:
-    image: docker.n8n.io/n8nio/n8n
+    image: docker.n8n.io/n8nio/n8n:latest
     container_name: n8n
     # depends_on:
     #   - traefik
     #   - authelia
     security_opt:
       - no-new-privileges:true    
-    restart: unless-stopped
+    restart: always
     # user: root
     environment:
       - N8N_BASIC_AUTH_ACTIVE=false
@@ -36,16 +36,18 @@ services:
     # links:
     #   - db
     volumes:
-      - /opt/n8n:/files
-    command: n8n start
+      # persistent config
+      - /opt/n8n:/home/node/.n8n
+      - /srv/docker-compose/n8n/_playbooks:/files/playbooks
+    # command: n8n start
     # depends_on:
     #   db:
     #     condition: service_healthy
     deploy:
       resources:
         limits:
-          cpus: '0.1'
-          memory: '256M'
+          cpus: '0.3'
+          memory: '512M'
     networks:
       - backend
     labels:
@@ -54,5 +56,12 @@ services:
       - "traefik.http.services.${SERVICE_NAME}.loadbalancer.server.port=${PORT}"
       - "traefik.http.routers.${SERVICE_NAME}.tls=true"
       - "traefik.http.routers.${SERVICE_NAME}.middlewares=authelia@docker"
-
-
+      # Homer labels
+      - "homer.enable=true"
+      - "homer.service=Tools"
+      - "homer.name=n8n"
+      - "homer.subtitle=free and source-available workflow automation tool "
+      - "homer.logo=icons/n8n.png"
+      # - homer.priority=2
+      - "homer.target=_blank"
+      - "homer.url=https://${SUBDOMAIN}.${ROOT_DOMAIN}"

@@ -21,27 +21,22 @@ networks:
 # docker run --cap-drop all --cap-add <CAPABILITY> <IMAGE-ID>
 
 services:
-  <service>:
-    image: <image>
-    container_name: <name>
+  jdownloader-2:
+    image: jlesage/jdownloader-2:latest
+    container_name: jdownloader-2
+    user: root
     # For custom Docker user
-    build:
-      context: "."
-      target: "app"
-      args:
-        - "UID=${UID:-2000}"
-        - "GID=${GID:-2000}"
+    # build:
+    #   context: "."
+    #   target: "app"
+    #   args:
+    #     - "UID=${UID:-2000}"
+    #     - "GID=${GID:-2000}"
     # user: dockeruser
     volumes:
-      # Ensure proper timezones
-      - /etc/localtime:/etc/localtime:ro
-      - /etc/timezone:/etc/timezone:ro
-      # Other required paths - per app
-      # Music library
-      - ${MEDIA}/foler:/folder
-      # qbittorrent path
-      - ${MEDIA}/00download:/downloads
-      - /opt/path:/path
+      # - /opt/path:/path
+      - "${MEDIA}/00download/jdownloader:/output:rw"
+      - "/opt/jdownloader-2:/config:rw"
     restart: always
     networks:
       - backend
@@ -53,11 +48,13 @@ services:
     deploy:
       resources:
         limits:
-          # Adjust as needed
-          cpus: '0.1'
-          memory: '512M'
+          cpus: '0.4'
+          memory: '1024M'
     environment:
-      - ENV:VAR
+      - KEEP_APP_RUNNING=1
+      - DARK_MODE=1
+      - USER_ID=0
+      - GROUP_ID=0
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.${SERVICE_NAME}.rule=Host(`${SUBDOMAIN}.${ROOT_DOMAIN}`)"
@@ -71,10 +68,10 @@ services:
       # - com.centurylinklabs.watchtower.scope=autoupdate
       # Homer labels
       - "homer.enable=true"
-      - "homer.service=Tools"
-      - "homer.name=http-echo"
-      - "homer.subtitle=http-echo server"
-      - "homer.logo=icons/nginx.png"
+      - "homer.service=Downloading"
+      - "homer.name=Jdownloader"
+      - "homer.subtitle=Free, open-source download management tool "
+      - "homer.logo=icons/jdownloader.png"
       # - homer.priority=2
       - "homer.target=_blank"
       - "homer.url=https://${SUBDOMAIN}.${ROOT_DOMAIN}"

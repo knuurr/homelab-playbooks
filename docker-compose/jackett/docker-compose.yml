@@ -5,7 +5,7 @@ networks:
     external: true
 
 
-version: "2.1"
+version: "3"
 services:
   jackett:
     image: lscr.io/linuxserver/jackett:latest
@@ -17,7 +17,7 @@ services:
       - PGID=2000
       - TZ=Etc/UTC
       # - AUTO_UPDATE=true #optional
-      - RUN_OPTS= #optional
+      # - RUN_OPTS= #optional
     volumes:
       - /opt/jackett:/config
       # - /path/to/blackhole:/downloads
@@ -29,8 +29,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.1'
-          memory: '256M'
+          cpus: '0.3'
+          memory: '512M'
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.${SERVICE_NAME}.rule=Host(`${SUBDOMAIN}.${ROOT_DOMAIN}`)"
@@ -43,6 +43,12 @@ services:
       # scopes: autoupdate, monitor
       - com.centurylinklabs.watchtower.scope=autoupdate
       # - com.centurylinklabs.watchtower.monitor-only="true"
-
-
-    
+      # Homer labels
+      - "homer.enable=true"
+      - "homer.service=Downloading"
+      - "homer.name=Jackett"
+      - "homer.subtitle=API Support for your favorite torrent trackers "
+      - "homer.logo=icons/jackett.png"
+      # - homer.priority=2
+      - "homer.target=_blank"
+      - "homer.url=https://${SUBDOMAIN}.${ROOT_DOMAIN}"

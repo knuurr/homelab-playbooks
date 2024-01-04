@@ -1,0 +1,38 @@
+---
+- name: Run Nmap Docker Container
+  hosts: localhost
+  gather_facts: no
+  vars:
+    docker_image_name: "instrumentisto/nmap"
+    container_name: "nmap-scan"
+    # target_ip: "192.168.1.2"  # Specify the target IP address as a variable
+
+  tasks:
+    - name: Check if target_ip is defined
+      fail:
+        msg: "The 'target_ip' variable is not defined. Please specify the target IP using -e target_ip=IP_ADDRESS"
+      when: target_ip is not defined
+
+    - name: Pull Docker Image
+      docker_image:
+        name: "{{ docker_image_name }}"
+        source: pull
+        state: present
+
+    - name: Run Docker Nmap Container Scan
+      docker_container:
+        name: "{{ container_name }}"
+        image: "{{ docker_image_name }}"
+        # command: "docker run -it --rm {{ container_name }} -p- -T4 {{ target_ip }}"
+        command: "docker run -it --rm {{ container_name }} -p- -sU -sS -n -T4 {{ target_ip }}"
+        state: started
+      register: nmap_result
+
+    - name: Show Nmap Output Results
+      debug:
+        var: nmap_result.stdout_lines
+
+    - name: Stop and Remove Docker Container
+      docker_container:
+        name: "{{ container_name }}"
+        state: absent

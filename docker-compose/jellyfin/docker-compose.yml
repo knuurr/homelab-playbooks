@@ -75,3 +75,12 @@ services:
       # #### The customFrameOptionsValue allows the X-Frame-Options header value to be set with a custom value. This
       # #### overrides the FrameDeny option.
       # - "traefik.http.middlewares.jellyfin-mw.headers.customFrameOptionsValue='allow-from https://DOMAIN_NAME'"
+        # Homer labels
+      - "homer.enable=true"
+      - "homer.service=Media & Fun"
+      - "homer.name=Jellyfin"
+      - "homer.subtitle=Stream to any device from your own server, with no strings attached"
+      - "homer.logo=icons/jellyfin.png"
+      # - homer.priority=2
+      - "homer.target=_blank"
+      - "homer.url=https://${SUBDOMAIN}.${ROOT_DOMAIN}"

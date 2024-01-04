@@ -1,0 +1,36 @@
+---
+- name: Update configs of Docker apps
+  hosts: local-1
+  gather_facts: false
+  become: true
+  vars_files:
+    - vars/main.yml
+    - vars/secrets.yml
+  
+  # This all is experimental
+  tasks:
+    - name: Import Traefik config tasks
+      include_tasks: tasks/update-config/config-traefik.yml
+
+    - name: Import Authelia config tasks
+      include_tasks: tasks/update-config/config-authelia.yml
+
+    # Needs implementation
+    # - name: Import Homer config tasks
+    #   include_tasks: tasks/update-config/config-homer.yml
+
+    # Needs implementation
+    # - name: Import Qbittorrent config tasks
+    #   include_tasks: tasks/update-config/config-qbittorrent.yml
+
+    # Needs implementation
+    # - name: Import Betanin config tasks
+    #   include_tasks: tasks/update-config/config-betanin.yml
+
+    - name: Handle errors
+      fail:
+        msg: "Failed to execute the playbooks."
+      when: "'failed' in play_results | map(attribute='failed') | list"
+
+  handlers:
+      - include: handlers/handlers.yml

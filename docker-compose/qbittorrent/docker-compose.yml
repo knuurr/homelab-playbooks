@@ -28,7 +28,7 @@ services:
       # - 8080:8080
       - 6881:6881
       - 6881:6881/udp
-    restart: unless-stopped
+    restart: always
     networks:
       - backend
     deploy:
@@ -47,3 +47,12 @@ services:
       - com.centurylinklabs.watchtower.enable=true
       # scopes: autoupdate, monitor
       - com.centurylinklabs.watchtower.scope=autoupdate
+      # Homer labels
+      - "homer.enable=true"
+      - "homer.service=Downloading"
+      - "homer.name=Qbittorrent"
+      - "homer.subtitle=Free and reliable P2P BitTorrent client."
+      - "homer.logo=icons/qbittorrent.png"
+      # - homer.priority=2
+      - "homer.target=_blank"
+      - "homer.url=https://${SUBDOMAIN}.${ROOT_DOMAIN}"
