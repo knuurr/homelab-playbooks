@@ -31,7 +31,13 @@
       shell: "du -ah --max-depth=1 {{ folder_path }} | sort -rh"
       register: individual_folder_sizes
 
+    # - name: Display Individual Folder Sizes
+    #   debug:
+    #     msg: "{{ item }}"
+    #   loop: "{{ individual_folder_sizes.stdout_lines }}"
+
+    # Fix for display
     - name: Display Individual Folder Sizes
       debug:
-        msg: "{{ item }}"
-      loop: "{{ individual_folder_sizes.stdout_lines }}"
+        msg: "{{ individual_folder_sizes.stdout_lines | replace('\\t', '    ') }}"
+      # loop: "{{ individual_folder_sizes.stdout_lines }}"

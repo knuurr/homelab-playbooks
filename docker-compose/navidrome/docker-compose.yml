@@ -20,6 +20,12 @@ services:
       - "/opt/navidrome:/data"
       # - "/path/to/your/music/folder:/music:ro"
       - "/mnt/myhdd/Muzyka_DB2:/music:ro"
+    deploy:
+      resources:
+        limits:
+          # Adjust as needed
+          cpus: '0.2'
+          memory: '512M'
     networks:
       - backend
     labels:
@@ -30,10 +36,10 @@ services:
       - "traefik.http.routers.${SERVICE_NAME}.middlewares=authelia@docker"
       # Homer labels
       - "homer.enable=true"
-      - "homer.service=Media & Fun"
-      - "homer.name=Navidrome"
-      - "homer.subtitle=Open source web-based music collection server and streamer."
-      - "homer.logo=icons/navidrome.png"
+      - "homepage.group=Media & Fun"
+      - "homepage.name=Navidrome"
+      - "homepage.description=Open source web-based music collection server and streamer."
+      - "homepage.icon=navidrome.png"
       # - homer.priority=2
       - "homer.target=_blank"
-      - "homer.url=https://${SUBDOMAIN}.${ROOT_DOMAIN}"
+      - "homepage.href=https://${SUBDOMAIN}.${ROOT_DOMAIN}"

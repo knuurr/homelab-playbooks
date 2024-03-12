@@ -1,28 +1,38 @@
 ---
-version: "2.1"
-
+version: "3"
 
 networks:
   backend:
     external: true 
 
-
-
 services:
   qbittorrent:
-    image: lscr.io/linuxserver/qbittorrent:latest
+    image: lscr.io/linuxserver/qbittorrent:4.6.3-r0-ls315
     container_name: qbittorrent
     environment:
-      - PUID=0
-      - PGID=0
-      - TZ=Etc/UTC
+      - PUID=2000
+      - PGID=2000
+      - TZ=Europe/Warsaw
       - WEBUI_PORT=8080
+      # Vuetorrent mod
+      - DOCKER_MODS=arafatamim/linuxserver-io-mod-vuetorrent
+    # build:
+      # context: "."
+      # For baking theme directly into container
+      # dockerfile_inline: |
+      #   FROM lscr.io/linuxserver/qbittorrent:4.6.3-libtorrentv1
+      #   RUN mkdir /opt/theme \
+      #       && cd /opt/theme \
+      #       && curl -LJO https://github.com/WDaan/VueTorrent/releases/download/v2.6.0/vuetorrent.zip \
+      #       && unzip vuetorrent.zip \
+      #       && rm vuetorrent.zip
     volumes:
+      # General config location
       - /opt/qbittorrent:/config
-      - /mnt/myhdd/00download:/downloads
-      # Dark theme - https://github.com/brettpetch/nightwalker
-      # - ./nightwalker:/opt/nightwalker
-      # - ./VueTorrent:/opt/VueTorrent
+      # General downloads location
+      - ${MEDIA}/00download:/downloads
+      # Music and Betanin ingets integration
+      - ${MEDIA}/00music/library/_staging:/music/_staging
       - ./config/done.sh:/opt/done.sh
     ports:
       # - 8080:8080
@@ -49,10 +59,10 @@ services:
       - com.centurylinklabs.watchtower.scope=autoupdate
       # Homer labels
       - "homer.enable=true"
-      - "homer.service=Downloading"
-      - "homer.name=Qbittorrent"
-      - "homer.subtitle=Free and reliable P2P BitTorrent client."
-      - "homer.logo=icons/qbittorrent.png"
+      - "homepage.group=Downloading"
+      - "homepage.name=Qbittorrent"
+      - "homepage.description=Free and reliable P2P BitTorrent client."
+      - "homepage.icon=qbittorrent.png"
       # - homer.priority=2
       - "homer.target=_blank"
-      - "homer.url=https://${SUBDOMAIN}.${ROOT_DOMAIN}"
+      - "homepage.href=https://${SUBDOMAIN}.${ROOT_DOMAIN}"

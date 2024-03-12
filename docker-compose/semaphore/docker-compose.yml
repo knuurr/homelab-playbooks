@@ -9,7 +9,7 @@ networks:
 
 services:
   semaphore:
-    image: semaphoreui/semaphore:latest
+    image: semaphoreui/semaphore:v2.9.45
     container_name: semaphore
     # Custom user
     user: root
@@ -50,10 +50,10 @@ services:
       # - com.centurylinklabs.watchtower.scope=autoupdate
       # Homer labels
       - "homer.enable=true"
-      - "homer.service=Tools"
-      - "homer.name=Ansible Semaphore"
-      - "homer.subtitle=Modern UI for Ansible."
-      - "homer.logo=icons/nginx.png"
+      - "homepage.group=Tools"
+      - "homepage.name=Ansible Semaphore"
+      - "homepage.description=Modern UI for Ansible."
+      - "homepage.icon=semaphore.png"
       # - homer.priority=2
       - "homer.target=_blank"
-      - "homer.url=https://${SUBDOMAIN}.${ROOT_DOMAIN}"
+      - "homepage.href=https://${SUBDOMAIN}.${ROOT_DOMAIN}"

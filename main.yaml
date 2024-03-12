@@ -4,6 +4,7 @@
   vars_files:
     - vars/main.yml
     - vars/apps.yml
+    - vars/backup.yml
   ignore_errors: "{{ ansible_check_mode }}"
   gather_facts: no
 
@@ -64,6 +65,7 @@
     - role: install-ext-hdd # mount external HDD
     - role: samba # install and configure Samba - important to run after "install-ext-hdd", or it will fail
     - role: docker-compose # Configure docker apps
+    - role: backup-job # Set backup job
 
 
   handlers:

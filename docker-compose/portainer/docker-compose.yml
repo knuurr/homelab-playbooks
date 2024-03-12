@@ -46,10 +46,10 @@ services:
       # - "traefik.http.routers.portainer.middlewares=authelia@docker"
       # Homer labels
       - "homer.enable=true"
-      - "homer.service=Dashboards"
-      - "homer.name=Portainer"
-      - "homer.subtitle=Container management software to deploy, troubleshoot, and secure applications "
-      - "homer.logo=icons/portainer.png"
+      - "homepage.group=Dashboards"
+      - "homepage.name=Portainer"
+      - "homepage.description=Container management software to deploy, troubleshoot, and secure applications "
+      - "homepage.icon=portainer.png"
       # - homer.priority=2
       - "homer.target=_blank"
-      - "homer.url=https://${SUBDOMAIN}.${ROOT_DOMAIN}"
+      - "homepage.href=https://${SUBDOMAIN}.${ROOT_DOMAIN}"

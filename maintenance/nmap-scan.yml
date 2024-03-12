@@ -1,3 +1,6 @@
+# Currently not used.
+
+
 ---
 - name: Run Nmap Docker Container
   hosts: localhost
@@ -5,7 +8,7 @@
   vars:
     docker_image_name: "instrumentisto/nmap"
     container_name: "nmap-scan"
-    # target_ip: "192.168.1.2"  # Specify the target IP address as a variable
+    target_ip: "192.168.100.2"  # Specify the target IP address as a variable
 
   tasks:
     - name: Check if target_ip is defined
@@ -24,13 +27,22 @@
         name: "{{ container_name }}"
         image: "{{ docker_image_name }}"
         # command: "docker run -it --rm {{ container_name }} -p- -T4 {{ target_ip }}"
-        command: "docker run -it --rm {{ container_name }} -p- -sU -sS -n -T4 {{ target_ip }}"
+        # command: "docker run -it --rm {{ container_name }} -p- -sU -sS -n -T4 {{ target_ip }}"
+        command: "-p- -sU -sS -n -T4 {{ target_ip }}"
         state: started
+        # It's important to specify detach: false to capture the output
+        detach: false
       register: nmap_result
 
+    # - name: Show Nmap Output Results
+    #   debug:
+    #     # var: nmap_result.stdout_lines
+    #     msg: "{{ nmap_result.stdout }}"
     - name: Show Nmap Output Results
       debug:
-        var: nmap_result.stdout_lines
+        # Use stdout_lines if present, else fallback to stdout
+        msg: "{{ nmap_result.ansible_facts.docker_container.Output }}"
+
 
     - name: Stop and Remove Docker Container
       docker_container:

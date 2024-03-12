@@ -47,8 +47,9 @@ services:
       - backend
 
   webserver:
-    image: ghcr.io/paperless-ngx/paperless-ngx:latest
-    restart: unless-stopped
+    image: ghcr.io/paperless-ngx/paperless-ngx:2.5.4
+    container_name: paperless-ngx
+    restart: always
     depends_on:
       - broker
       - gotenberg
@@ -62,15 +63,26 @@ services:
       retries: 5
     volumes:
       - /opt/paperless-ngx/data:/usr/src/paperless/data
-      - /mnt/myhdd/00documents:/usr/src/paperless/media
-      - ./export:/usr/src/paperless/export
-      - ./consume:/usr/src/paperless/consume
-    env_file: docker-compose.env
+      - ${MEDIA}/00paperless/media:/usr/src/paperless/media
+      - ${MEDIA}/00paperless/export:/usr/src/paperless/export
+      - ${MEDIA}/00paperless/consume:/usr/src/paperless/consume
+    # env_file: docker-compose.env
     environment:
-      PAPERLESS_REDIS: redis://broker:6379
+      PAPERLESS_REDIS: redis://paperless-broker-1:6379
       PAPERLESS_TIKA_ENABLED: 1
-      PAPERLESS_TIKA_GOTENBERG_ENDPOINT: http://gotenberg:3000
-      PAPERLESS_TIKA_ENDPOINT: http://tika:9998
+      PAPERLESS_TIKA_GOTENBERG_ENDPOINT: http://paperless-gotenberg-1:3000
+      PAPERLESS_TIKA_ENDPOINT: http://paperless-tika-1:9998
+      PAPERLESS_ADMIN_USER: "admin"
+      PAPERLESS_ADMIN_PASSWORD: "admin"
+      # My custom user
+      USERMAP_UID: "2000"
+      USERMAP_GID: "2000"
+      PAPERLESS_OCR_LANGUAGES: "eng pol"
+      PAPERLESS_TIME_ZONE: "Europe/Warsaw"
+      PAPERLESS_OCR_LANGUAGE: pol
+      PAPERLESS_URL: https://${SUBDOMAIN}.${ROOT_DOMAIN}
+      PAPERLESS_CONSUMER_RECURSIVE: "true"
+      PAPERLESS_CONSUMER_SUBDIRS_AS_TAGS: "true"
     networks:
       - backend
     labels:
@@ -81,17 +93,16 @@ services:
       - "traefik.http.routers.${SERVICE_NAME}.tls=true"
       - "traefik.http.routers.${SERVICE_NAME}.middlewares=authelia@docker"
       # Homer labels
-      - "homer.enable=true"
-      - "homer.service=Media & Fun"
-      - "homer.name=Paperless-ngx"
-      - "homer.subtitle=Open-source document management system that transforms your physical documents into a searchable online archive."
-      - "homer.logo=icons/paperless-ng.png"
+      - "homepage.group=Media & Fun"
+      - "homepage.name=Paperless-ngx"
+      - "homepage.description=Open-source document management system that transforms your physical documents into a searchable online archive."
+      - "homepage.icon=paperless-ng.png"
       # - homer.priority=2
       - "homer.target=_blank"
-      - "homer.url=https://${SUBDOMAIN}.${ROOT_DOMAIN}"
+      - "homepage.href=https://${SUBDOMAIN}.${ROOT_DOMAIN}"
 
   gotenberg:
-    image: docker.io/gotenberg/gotenberg:7.8
+    image: docker.io/gotenberg/gotenberg:7.10
     restart: unless-stopped
 
     # The gotenberg chromium route is used to convert .eml files. We do not

@@ -15,7 +15,7 @@
     t_restart: []  # List of containers to restart
     t_start: []    # List of containers to start
     t_stop: []     # List of containers to stop
-    t_recreate: [semaphore, uptime-kuma, betanin] # List of containers to recreate
+    t_recreate: [paperless-ngx] # List of containers to recreate
 
 
 
@@ -33,7 +33,7 @@
         recursive: yes
         archive: no
         checksum: yes
-        delete: no
+        delete: yes
       # loop: "{{ prod_apps }}"
 
 
@@ -44,42 +44,28 @@
         group: root
         recurse: yes
         state: directory
-    
-    - name: Permission quickfix for Homer icons
-      file:
-        path: "{{ compose_file_path }}/homer/icons"
-        mode: 0755
-        state: directory 
-        recurse: yes
-      
-    - name: Permission quickfix for Qbittorrent scirpt
-      file:
-        path: "{{ compose_file_path }}/qbittorrent/done.sh"
-        mode: 0770
-        # state: directory 
-        # recurse: yes
 
     - name: restart ALL Containers
-      docker_compose:
+      community.docker.docker_compose_v2:
         project_src: "{{ compose_file_path }}/{{ item }}/"
-        state: present
-        restarted: true
+        # state: present
+        state: restarted
       # when: t_restart | length > 0
       loop: "{{ prod_apps }}"
       when: "'all' in t_restart"
 
     - name: Restart Some Containers
-      docker_compose:
+      community.docker.docker_compose_v2:
         project_src: "{{ compose_file_path }}/{{ item }}/"
-        state: present
-        restarted: true
-      when: t_restart | length > 0
+        # state: present
+        state: restarted
+      when: t_restart | length > 0 and "all" not in t_restart
       loop: "{{ t_restart }}"
       # loop_control:
       #   loop_var: container
 
     - name: Start Some Containers
-      docker_compose:
+      community.docker.docker_compose_v2:
         project_src: "{{ compose_file_path }}/{{ item }}/"
         state: present
       when: t_start | length > 0
@@ -88,7 +74,7 @@
       #   loop_var: container
 
     - name: Stop Some Containers
-      docker_compose:
+      community.docker.docker_compose_v2:
         project_src: "{{ compose_file_path }}/{{ item }}/"
         state: absent
       when: t_stop | length > 0
@@ -97,14 +83,28 @@
       #   loop_var: container
 
     - name: Recreate Some Containers
-      docker_compose:
+      community.docker.docker_compose_v2:
         project_src: "{{ compose_file_path }}/{{ item }}/"
         state: present
-        nocache: true
-        restarted: true
+        # nocache: true
+        # restarted: true
+        build: always
         recreate: always
-        pull: yes  # Add this line to pull the latest image before recreating
-      when: t_recreate | length > 0
+        pull: always  # Add this line to pull the latest image before recreating
+      when: t_recreate | length > 0 and "all" not in t_recreate
       loop: "{{ t_recreate }}"
       # loop_control:
       #   loop_var: container
+
+    - name: Recreate ALL Containers
+      community.docker.docker_compose_v2:
+        project_src: "{{ compose_file_path }}/{{ item }}/"
+        state: present
+        # nocache: true
+        # restarted: true
+        build: always
+        recreate: always
+        pull: always  # Add this line to pull the latest image before recreating
+      # when: t_restart | length > 0
+      loop: "{{ prod_apps }}"
+      when: "'all' in t_recreate"

@@ -36,6 +36,8 @@ services:
       # Ensure proper timezones
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
+      # Docker Socket
+      - /var/run/docker.sock:/var/run/docker.sock:ro
       # Other required paths - per app
       # Music library
       - ${MEDIA}/foler:/folder
@@ -71,10 +73,10 @@ services:
       # - com.centurylinklabs.watchtower.scope=autoupdate
       # Homer labels
       - "homer.enable=true"
-      - "homer.service=Tools"
-      - "homer.name=http-echo"
-      - "homer.subtitle=http-echo server"
-      - "homer.logo=icons/nginx.png"
+      - "homepage.group=Tools"
+      - "homepage.name=http-echo"
+      - "homepage.description=http-echo server"
+      - "homepage.icon=nginx.png"
       # - homer.priority=2
       - "homer.target=_blank"
-      - "homer.url=https://${SUBDOMAIN}.${ROOT_DOMAIN}"
+      - "homepage.href=https://${SUBDOMAIN}.${ROOT_DOMAIN}"

@@ -69,11 +69,11 @@ services:
       - "traefik.http.routers.${SERVICE_NAME}.middlewares=authelia@docker"
       # Homer labels
       - "homer.enable=true"
-      - "homer.service=Tools"
-      - "homer.name=Vaultwarden"
-      - "homer.subtitle=Unofficial Bitwarden compatible server"
-      - "homer.logo=icons/vaultwarden.png"
+      - "homepage.group=Tools"
+      - "homepage.name=Vaultwarden"
+      - "homepage.description=Unofficial Bitwarden compatible server"
+      - "homepage.icon=vaultwarden.png"
       # - homer.priority=2
       - "homer.target=_blank"
-      - "homer.url=https://${SUBDOMAIN}.${ROOT_DOMAIN}"
+      - "homepage.href=https://${SUBDOMAIN}.${ROOT_DOMAIN}"
       - "homer.tag=custom-auth"

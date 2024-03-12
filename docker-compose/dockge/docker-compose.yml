@@ -21,9 +21,9 @@ networks:
 # docker run --cap-drop all --cap-add <CAPABILITY> <IMAGE-ID>
 
 services:
-  flaresolverr:
-    image: ghcr.io/flaresolverr/flaresolverr:latest
-    container_name: flaresolverr
+  dockge:
+    image: louislam/dockge:1.4.2
+    container_name: dockge
     # For custom Docker user
     # build:
     #   context: "."
@@ -32,8 +32,18 @@ services:
     #     - "UID=${UID:-2000}"
     #     - "GID=${GID:-2000}"
     # user: dockeruser
-    # volumes:
-    #   - /opt/path:/path
+    volumes:
+      # Ensure proper timezones
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+      # Docker socket
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ${DATA}/dockge:/app/data
+      # Stacks Directory
+      # ⚠️ READ IT CAREFULLY. If you did it wrong, your data could end up writing into a WRONG PATH.
+      # ⚠️ 1. FULL path only. No relative path (MUST)
+      # ⚠️ 2. Left Stacks Path === Right Stacks Path (MUST)
+      - /srv/docker-compose:/srv/docker-compose:ro
     restart: always
     networks:
       - backend
@@ -45,24 +55,30 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '2'
-          memory: '1536M'
+          # Adjust as needed
+          cpus: '0.2'
+          memory: '512M'
     environment:
-      # - ENV:VAR
-      - LOG_LEVEL=${LOG_LEVEL:-info}
-      - LOG_HTML=${LOG_HTML:-false}
-      - CAPTCHA_SOLVER=${CAPTCHA_SOLVER:-none}
-      - TZ=Europe/Warsaw
-    expose:
-      - 8191
-    # labels:
-      # - "traefik.enable=true"
-      # - "traefik.http.routers.${SERVICE_NAME}.rule=Host(`${SUBDOMAIN}.${ROOT_DOMAIN}`)"
+      # Tell Dockge where to find the stacks
+      - DOCKGE_STACKS_DIR=/srv/docker-compose
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${SERVICE_NAME}.rule=Host(`${SUBDOMAIN}.${ROOT_DOMAIN}`)"
+      # Uncomment if explicitly need to set port
       # - "traefik.http.services.${SERVICE_NAME}.loadbalancer.server.port=${PORT}"
       # - "traefik.docker.network=frontend"
-      # - "traefik.http.routers.${SERVICE_NAME}.tls=true"
-      # - "traefik.http.routers.${SERVICE_NAME}.middlewares=authelia@docker"
+      - "traefik.http.routers.${SERVICE_NAME}.tls=true"
+      - "traefik.http.routers.${SERVICE_NAME}.middlewares=authelia@docker"
       # Watchtower
       # - com.centurylinklabs.watchtower.enable=true
       # scopes: autoupdate, monitor
       # - com.centurylinklabs.watchtower.scope=autoupdate
+      # Homer labels
+      - "homer.enable=true"
+      - "homepage.group=Tools"
+      - "homepage.name=Dockge"
+      - "homepage.description=Self-hosted - Docker compose.yaml - Stack-oriented Manager "
+      - "homepage.icon=dockge.png"
+      # - homer.priority=2
+      - "homer.target=_blank"
+      - "homepage.href=https://${SUBDOMAIN}.${ROOT_DOMAIN}"

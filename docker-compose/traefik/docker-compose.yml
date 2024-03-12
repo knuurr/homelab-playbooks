@@ -13,8 +13,8 @@ networks:
 
 services:
   traefik:
-    image: "traefik:v2.10"
-    container_name: "traefik"
+    image: traefik:v2.11.0
+    container_name: traefik
     restart: always
     # depends_on:
       # - traefik
@@ -37,7 +37,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.1'
+          cpus: '0.3'
           memory: '256M'
     logging:
       options:
@@ -90,19 +90,19 @@ services:
       - 'traefik.http.middlewares.authelia.forwardAuth.authResponseHeaders=Remote-User,Remote-Groups,Remote-Name,Remote-Email'
         # Homer labels
       - "homer.enable=true"
-      - "homer.service=Dashboards"
-      - "homer.name=Traefik"
-      - "homer.subtitle=Traefik dashboard"
-      - "homer.logo=icons/traefik.png"
+      - "homepage.group=Dashboards"
+      - "homepage.name=Traefik"
+      - "homepage.description=Traefik dashboard"
+      - "homepage.icon=traefik.png"
       # - homer.priority=2
       - "homer.target=_blank"
-      - "homer.url=https://${SUBDOMAIN}.${ROOT_DOMAIN}"
+      - "homepage.href=https://${SUBDOMAIN}.${ROOT_DOMAIN}"
 
 # Custom error pages guide: https://www.imandrea.me/blog/traefik-custom-404/
 # Ready to use error pages: https://github.com/tarampampam/error-pages/wiki/Traefik-(docker-compose)
 # And https://hub.docker.com/r/tarampampam/error-pages
   error-pages:
-    image: tarampampam/error-pages:latest # Using the latest tag is highly discouraged. Please, use tags in X.Y.Z format
+    image: tarampampam/error-pages:2.26.0 # Using the latest tag is highly discouraged. Please, use tags in X.Y.Z format
     container_name: error-pages
     restart: always
     environment:

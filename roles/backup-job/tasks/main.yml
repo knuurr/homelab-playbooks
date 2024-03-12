@@ -1,0 +1,51 @@
+---
+- name: Copy or update backup.sh to home directory of root user
+  copy:
+    src: "{{ source_script_location }}"
+    dest: "/root/backup.sh"
+    owner: root
+    group: root
+    mode: '0700'  # Ensure the script is executable
+
+
+# Check if Destination Folder Exists
+- name: Check if Backup Source Folder Exists
+  stat:
+    path: "{{ source_backup_folder }}"
+  register: source_backup_folder_check
+
+
+# Fail Playbook if Destination Doesn't Exist
+- name: Fail Playbook if Backup Source Folder Doesn't Exist
+  fail:
+    msg: "Backup Source Folder does not exist. Backup cannot proceed."
+  when: not source_backup_folder_check.stat.exists
+
+
+# Check if Backup Destination Exists
+- name: Check if Backup Destination Exists
+  stat:
+    path: "{{ destination_backup_folder }}"
+  register: backup_destination_check
+
+
+# Create Backup Directory if It Doesn't Exist
+- name: Create Backup Directory if It Doesn't Exist
+  file:
+    path: "{{ destination_backup_folder }}"
+    state: directory
+  when: not backup_destination_check.stat.exists
+
+
+# Install Cron Job for Weekly Backup
+- name: Install Cron Job for Weekly Backup
+  cron:
+    name: Weekly Backup
+    minute: "{{ backup_script_minute }}"
+    hour: "{{ backup_script_hour }}"
+    weekday: "{{ backup_script_weekday }}"  # Set to 6 to run on Saturday (0=Sunday, 1=Monday, ..., 6=Saturday)
+    user: root
+    # job: "/root/backup.sh --source {{ source_backup_folder }} --dest {{ destination_backup_folder }}"  # Path to your backup script
+    job: "/root/backup.sh --source {{ source_backup_folder }} --dest {{ destination_backup_folder }} {{ '--notify' if backup_notify else '' }}"  # Path to your backup script
+    state: present
+

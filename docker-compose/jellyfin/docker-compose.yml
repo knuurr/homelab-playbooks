@@ -77,10 +77,10 @@ services:
       # - "traefik.http.middlewares.jellyfin-mw.headers.customFrameOptionsValue='allow-from https://DOMAIN_NAME'"
         # Homer labels
       - "homer.enable=true"
-      - "homer.service=Media & Fun"
-      - "homer.name=Jellyfin"
-      - "homer.subtitle=Stream to any device from your own server, with no strings attached"
-      - "homer.logo=icons/jellyfin.png"
+      - "homepage.group=Media & Fun"
+      - "homepage.name=Jellyfin"
+      - "homepage.description=Stream to any device from your own server, with no strings attached"
+      - "homepage.icon=jellyfin.png"
       # - homer.priority=2
       - "homer.target=_blank"
-      - "homer.url=https://${SUBDOMAIN}.${ROOT_DOMAIN}"
+      - "homepage.href=https://${SUBDOMAIN}.${ROOT_DOMAIN}"

@@ -9,7 +9,7 @@ networks:
 
 services:
   grafana:
-    image: grafana/grafana
+    image: grafana/grafana:10.2.4
     container_name: "grafana"
     user: root # https://community.grafana.com/t/mkdir-cant-create-directory-var-lib-grafana-plugins-permission-denied/68342/31
     # depends_on:
@@ -29,13 +29,13 @@ services:
       - "traefik.http.services.${SERVICE_NAME}.loadbalancer.server.port=${PORT}"
       # Homer labels
       - "homer.enable=true"
-      - "homer.service=Dashboards"
-      - "homer.name=Grafana"
-      - "homer.subtitle=Open source analytics & monitoring solution for every database"
-      - "homer.logo=icons/grafana.png"
+      - "homepage.group=Dashboards"
+      - "homepage.name=Grafana"
+      - "homepage.description=Open source analytics & monitoring solution for every database"
+      - "homepage.icon=grafana.png"
       # - homer.priority=2
       - "homer.target=_blank"
-      - "homer.url=https://${SUBDOMAIN}.${ROOT_DOMAIN}"
+      - "homepage.href=https://${SUBDOMAIN}.${ROOT_DOMAIN}"
     networks:
       - backend
     restart: unless-stopped

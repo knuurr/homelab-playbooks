@@ -1,0 +1,8 @@
+# Use sentriz/betanin as the base image
+FROM sentriz/betanin
+
+# Install BeautifulSoup4 and Requests
+RUN pip install beautifulsoup4 requests
+
+# Install Beets and its alternatives, with a version >= 1.6.0
+RUN pip install --upgrade beets>=1.6.0 beets-alternatives

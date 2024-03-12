@@ -58,6 +58,11 @@ access_control:
         policy: bypass
       - domain: api.{{ AUTHELIA_ROOT_DOMAIN }}
         policy: bypass
+      - domain: calibre.{{ AUTHELIA_ROOT_DOMAIN }}
+        # For OPDS catalog
+        resources:
+          - "^/opds.*$"
+        policy: bypass
 
 session:
   name: authelia_session

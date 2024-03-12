@@ -21,10 +21,9 @@ networks:
 # docker run --cap-drop all --cap-add <CAPABILITY> <IMAGE-ID>
 
 services:
-  jdownloader-2:
-    image: jlesage/jdownloader-2:v24.01.1
-    container_name: jdownloader-2
-    # user: root
+  tdarr:
+    image: ghcr.io/haveagitgat/tdarr:latest
+    container_name: tdarr
     # For custom Docker user
     # build:
     #   context: "."
@@ -34,10 +33,20 @@ services:
     #     - "GID=${GID:-2000}"
     # user: dockeruser
     volumes:
-      # - /opt/path:/path
-      - "${MEDIA}/00download/jdownloader:/output:rw"
-      - "/opt/jdownloader-2:/config:rw"
-    restart: always
+      # Ensure proper timezones
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+      # Other required paths - per app
+      - ${MEDIA}/kiepscy:/media/kiepscy
+      # qbittorrent path
+      - /opt/tdarr/server:/app/server
+      - /opt/tdarr/configs:/app/configs
+      - /opt/tdarr/logs:/app/logs
+      - ${MEDIA}/.tdarr_cache:/temp
+      # GPU
+      # More: https://docs.tdarr.io/docs/installation/docker/hardware-transcoding
+      - /dev/dri/renderD128:/dev/dri/renderD128
+    restart: unless-stopped
     networks:
       - backend
     ### Seucrity ###
@@ -48,15 +57,32 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.8'
-          memory: '1024M'
+          # Adjust as needed
+          cpus: '2'
+          memory: '3072M'
+        # reservations:
+        #   devices:
+        #     - capabilities: [gpu]
+          # - driver: amdgpu
+          #   count: all
+          #   capabilities: [gpu]
+    # environment:
+      # - ENV:VAR
     environment:
-      - KEEP_APP_RUNNING=1
-      - DARK_MODE=1
-      - USER_ID=2000
-      - GROUP_ID=2000
-      - TZ=Europe/Warsaw
-      - LANG=en_US.UTF-8
+      # - TZ=Europe/London
+      - PUID=${UID}
+      - PGID=${GID}
+      - UMASK_SET=002
+      - serverIP=0.0.0.0
+      - serverPort=8266
+      - webUIPort=8265
+      - internalNode=true
+      - inContainer=true
+      - ffmpegVersion=6
+      - nodeName=MyInternalNode
+      # - NVIDIA_DRIVER_CAPABILITIES=all
+      # - NVIDIA_VISIBLE_DEVICES=all
+      - ROC_ENABLE_PRE_VEGA=1
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.${SERVICE_NAME}.rule=Host(`${SUBDOMAIN}.${ROOT_DOMAIN}`)"
@@ -69,10 +95,11 @@ services:
       # scopes: autoupdate, monitor
       # - com.centurylinklabs.watchtower.scope=autoupdate
       # Homer labels
+      - "homer.enable=true"
       - "homepage.group=Downloading"
-      - "homepage.name=Jdownloader"
-      - "homepage.description=Free, open-source download management tool "
-      - "homepage.icon=jdownloader.png"
+      - "homepage.name=Tdarr"
+      - "homepage.description=cross-platform conditional based transcoding application for automating media library transcode/remux management "
+      - "homepage.icon=tdarr.png"
       # - homer.priority=2
       - "homer.target=_blank"
       - "homepage.href=https://${SUBDOMAIN}.${ROOT_DOMAIN}"

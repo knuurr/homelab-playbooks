@@ -1,0 +1,17 @@
+- hosts: local-1
+  become: yes
+  become_user: root
+  # become_user: ansible
+  vars_files:
+    - vars/main.yml
+    - vars/apps.yml
+    - vars/backup.yml
+  ignore_errors: "{{ ansible_check_mode }}"
+  gather_facts: no
+
+  roles:
+    - backup-job
+
+
+  handlers:
+    - include: handlers/handlers.yml

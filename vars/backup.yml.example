@@ -1,0 +1,13 @@
+# Local script location
+source_script_location: "backup.sh"
+
+# Folders paths
+# destination_folder: "/mnt/path/backup/destination"
+source_backup_folder: "/path/to/src"
+destination_backup_folder: "/mnt/path/to/dest"
+
+# Cron settings
+backup_script_hour: "7"
+backup_script_minute: "0"
+backup_script_weekday: "5"
+# backup_log_file: "/path/to/log/backup.log"

@@ -8,14 +8,15 @@ networks:
 version: "3"
 services:
   jackett:
-    image: lscr.io/linuxserver/jackett:latest
+    image: lscr.io/linuxserver/jackett:v0.21.1873-ls321
     container_name: jackett
     security_opt:
       - no-new-privileges:true
     environment:
       - PUID=2000
       - PGID=2000
-      - TZ=Etc/UTC
+      - TZ=Europe/Warsaw
+      - AUTO_UPDATE=false #optional
       # - AUTO_UPDATE=true #optional
       # - RUN_OPTS= #optional
     volumes:
@@ -45,10 +46,10 @@ services:
       # - com.centurylinklabs.watchtower.monitor-only="true"
       # Homer labels
       - "homer.enable=true"
-      - "homer.service=Downloading"
-      - "homer.name=Jackett"
-      - "homer.subtitle=API Support for your favorite torrent trackers "
-      - "homer.logo=icons/jackett.png"
+      - "homepage.group=Downloading"
+      - "homepage.name=Jackett"
+      - "homepage.description=API Support for your favorite torrent trackers "
+      - "homepage.icon=jackett.png"
       # - homer.priority=2
       - "homer.target=_blank"
-      - "homer.url=https://${SUBDOMAIN}.${ROOT_DOMAIN}"
+      - "homepage.href=https://${SUBDOMAIN}.${ROOT_DOMAIN}"

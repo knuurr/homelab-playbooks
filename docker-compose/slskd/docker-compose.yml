@@ -10,7 +10,7 @@ networks:
 
 services:
   slskd:
-    image: slskd/slskd
+    image: slskd/slskd:0.20.0
     container_name: slskd
     # user: root
     ports:
@@ -40,10 +40,10 @@ services:
       # - centurylinklabs.watchtower.monitor-only="true"
       # Homer labels
       - "homer.enable=true"
-      - "homer.service=Downloading"
-      - "homer.name=slskd"
-      - "homer.subtitle=modern client-server application for the Soulseek file sharing network"
-      - "homer.logo=icons/slskd.png"
+      - "homepage.group=Downloading"
+      - "homepage.name=slskd"
+      - "homepage.description=modern client-server application for the Soulseek file sharing network"
+      - "homepage.icon=soulseek.png"
       # - homer.priority=2
       - "homer.target=_blank"
-      - "homer.url=https://${SUBDOMAIN}.${ROOT_DOMAIN}"
+      - "homepage.href=https://${SUBDOMAIN}.${ROOT_DOMAIN}"

@@ -2,20 +2,13 @@
 
 version: '3.8'
 
-# volumes:
-#   config-folder:
-#     driver_opts:
-#         # type: "nfs"
-#         # o: "addr=10.40.0.199,nolock,soft,rw"
-#         device: "/opt/n8n"
-
 networks:
   backend:
     external: true
 
 services:
   n8n:
-    image: docker.n8n.io/n8nio/n8n:latest
+    image: n8nio/n8n:1.31.0
     container_name: n8n
     # depends_on:
     #   - traefik
@@ -38,7 +31,6 @@ services:
     volumes:
       # persistent config
       - /opt/n8n:/home/node/.n8n
-      - /srv/docker-compose/n8n/_playbooks:/files/playbooks
     # command: n8n start
     # depends_on:
     #   db:
@@ -58,10 +50,10 @@ services:
       - "traefik.http.routers.${SERVICE_NAME}.middlewares=authelia@docker"
       # Homer labels
       - "homer.enable=true"
-      - "homer.service=Tools"
-      - "homer.name=n8n"
-      - "homer.subtitle=free and source-available workflow automation tool "
-      - "homer.logo=icons/n8n.png"
+      - "homepage.group=Tools"
+      - "homepage.name=n8n"
+      - "homepage.description=free and source-available workflow automation tool "
+      - "homepage.icon=n8n.png"
       # - homer.priority=2
       - "homer.target=_blank"
-      - "homer.url=https://${SUBDOMAIN}.${ROOT_DOMAIN}"
+      - "homepage.href=https://${SUBDOMAIN}.${ROOT_DOMAIN}"

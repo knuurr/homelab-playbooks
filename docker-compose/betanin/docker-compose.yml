@@ -8,23 +8,48 @@ networks:
 
 services:
   betanin:
-    image: sentriz/betanin
+    # image: sentriz/betanin:v0.5.6
+    container_name: betanin
     # ports:
     #   - 9393:9393
     restart: always
     environment:
-      - UID=0 # (optionally) set user id
-      - GID=0 # (optionally) set group id
+      - UID=2000 # (optionally) set user id
+      - GID=2000 # (optionally) set group id
+    build:
+      # context: "."
+      # target: "app"
+      # args:
+      #   - "UID=${UID:-2000}"
+      #   - "GID=${GID:-2000}"
+      # Support for beet-alternatives plugin
+      dockerfile_inline: |
+        FROM sentriz/betanin:v0.5.6
+        RUN pip install beetcamp
+        RUN mkdir -p /opt/plugin/beets-alternatives/beetsplug \
+            && cd /opt/plugin/beets-alternatives/beetsplug \
+            && wget -O __init__.py https://raw.githubusercontent.com/geigerzaehler/beets-alternatives/main/beetsplug/__init__.py \
+            && wget -O alternatives.py https://raw.githubusercontent.com/geigerzaehler/beets-alternatives/main/beetsplug/alternatives.py
     volumes:
+      # Betanin configs
       - ${DATA}/betanin/data:/b/.local/share/betanin/
       - ${DATA}/betanin/config:/b/.config/betanin/
-      - ${DATA}/betanin/beets:/b/.config/beets/
-      - ./config/beets.yml:/b/.config/beets/config.yaml
-      # Music library
-      - ${MEDIA}/00music:/music
-      # qbittorrent path
-      - ${MEDIA}/00download:/downloads
+      # Beets DB and config file location
+      ### If DB path update was ever needed to be done: https://github.com/beetbox/beets/issues/133#issuecomment-1482006680
+      ### sqlite3 ~/.beets.db "UPDATE items SET path = replace(path, '/mnt/old_folder', '/mnt/new_folder');"
+      ### sqlite3 ~/.beets.db "UPDATE albums SET artpath = replace(artpath, '/mnt/old_folder', '/mnt/new_folder');"
+      - ${MEDIA}/00music/.beets:/b/.config/beets/
+      # Music library - with multiple folders inside
+      - ${MEDIA}/00music/library:/music
+      # For Qbit torrent - obsolete I guess
+      # - ${MEDIA}/00download:/downloads
       # - ${MEDIA}/00music:/downloads
+    deploy:
+      resources:
+        limits:
+          # Adjust as needed
+          cpus: '3'
+          memory: '3072M'
     networks:
       - backend
     labels:
@@ -36,10 +61,51 @@ services:
       - "traefik.http.routers.${SERVICE_NAME}.middlewares=authelia@docker"
       # Homer labels
       - "homer.enable=true"
-      - "homer.service=Downloading"
-      - "homer.name=Betanin"
-      - "homer.subtitle=beets based mitm of your torrent client and music player "
-      - "homer.logo=icons/nginx.png"
+      - "homepage.group=Downloading"
+      - "homepage.name=Betanin"
+      - "homepage.description=Beets based mitm of your torrent client and music player "
+      - "homepage.icon=betanin.png"
       # - homer.priority=2
       - "homer.target=_blank"
-      - "homer.url=https://${SUBDOMAIN}.${ROOT_DOMAIN}"
+      - "homepage.href=https://${SUBDOMAIN}.${ROOT_DOMAIN}"
+
+  betanin-watcher:
+    container_name: betanin_watcher
+    # image: ghcr.io/jee-r/watcher:main
+    restart: always
+    build:
+      dockerfile_inline: |
+        FROM alpine:3.19
+
+        ENV WATCH_DIR \
+            BETANIN_API_KEY \
+            BETANIN_API_URL
+
+        RUN apk update ; \
+            apk upgrade ; \
+            apk add --no-cache \
+                curl \
+                inotify-tools ; \
+            rm -rf /tmp/* /var/cache/apk/* 
+
+        COPY ./betanin-watch.sh /usr/local/bin/entrypoint
+
+        RUN chmod u+x /usr/local/bin/entrypoint
+
+        CMD ["/usr/local/bin/entrypoint"]
+    user: 2000:2000
+    environment:
+      - UMASK_SET=022
+      - BETANIN_API_KEY=${BETANIN_API_KEY}
+      - BETANIN_API_URL=http://betanin:${PORT}/api/torrents
+      - WATCH_DIR=/music/_staging
+    volumes:
+      - ${MEDIA}/00music/library/_staging:/music/_staging:ro
+    deploy:
+      resources:
+        limits:
+          # Adjust as needed
+          cpus: '0.1'
+          memory: '128M'
+    networks:
+      - backend

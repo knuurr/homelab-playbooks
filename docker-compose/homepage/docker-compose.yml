@@ -21,22 +21,17 @@ networks:
 # docker run --cap-drop all --cap-add <CAPABILITY> <IMAGE-ID>
 
 services:
-  jdownloader-2:
-    image: jlesage/jdownloader-2:v24.01.1
-    container_name: jdownloader-2
-    # user: root
-    # For custom Docker user
-    # build:
-    #   context: "."
-    #   target: "app"
-    #   args:
-    #     - "UID=${UID:-2000}"
-    #     - "GID=${GID:-2000}"
-    # user: dockeruser
+  homepage:
+    image: ghcr.io/gethomepage/homepage:v0.8.8
+    container_name: homepage
     volumes:
-      # - /opt/path:/path
-      - "${MEDIA}/00download/jdownloader:/output:rw"
-      - "/opt/jdownloader-2:/config:rw"
+      # Ensure proper timezones
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+      # Docker Socket
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      # Other required paths - per app
+      - /opt/homepage:/app/config
     restart: always
     networks:
       - backend
@@ -48,31 +43,37 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.8'
-          memory: '1024M'
+          # Adjust as needed
+          cpus: '0.2'
+          memory: '250M'
     environment:
-      - KEEP_APP_RUNNING=1
-      - DARK_MODE=1
-      - USER_ID=2000
-      - GROUP_ID=2000
-      - TZ=Europe/Warsaw
-      - LANG=en_US.UTF-8
+      - PUID=0
+      - PGID=0
+
+
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.${SERVICE_NAME}.rule=Host(`${SUBDOMAIN}.${ROOT_DOMAIN}`)"
       - "traefik.http.services.${SERVICE_NAME}.loadbalancer.server.port=${PORT}"
+      # redirection
+      - "traefik.http.middlewares.redirect-middleware.redirectregex.regex=^https://${ROOT_DOMAIN}/(.*)"
+      - "traefik.http.middlewares.redirect-middleware.redirectregex.replacement=https://${SUBDOMAIN}.${ROOT_DOMAIN}/$$1"
+      - "traefik.http.middlewares.redirect-middleware.redirectregex.permanent=true"
+      - "traefik.http.middlewares.redirect-middleware.priority=5"
+
       # - "traefik.docker.network=frontend"
       - "traefik.http.routers.${SERVICE_NAME}.tls=true"
-      - "traefik.http.routers.${SERVICE_NAME}.middlewares=authelia@docker"
+      - "traefik.http.routers.${SERVICE_NAME}.middlewares=redirect-middleware@docker,authelia@docker"
       # Watchtower
       # - com.centurylinklabs.watchtower.enable=true
       # scopes: autoupdate, monitor
       # - com.centurylinklabs.watchtower.scope=autoupdate
       # Homer labels
-      - "homepage.group=Downloading"
-      - "homepage.name=Jdownloader"
-      - "homepage.description=Free, open-source download management tool "
-      - "homepage.icon=jdownloader.png"
+      # - "homer.enable=true"
+      # - "homepage.group=Tools"
+      # - "homepage.name=http-echo"
+      # - "homepage.description=http-echo server"
+      # - "homepage.icon=nginx.png"
       # - homer.priority=2
       - "homer.target=_blank"
       - "homepage.href=https://${SUBDOMAIN}.${ROOT_DOMAIN}"

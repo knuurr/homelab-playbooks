@@ -1,0 +1,4 @@
+# Useful commands for working with beets
+
+# If you’d like to leave your music files untouched, try the -C (don’t copy) and -W (don’t write tags) options. 
+beet import -C -q <path>

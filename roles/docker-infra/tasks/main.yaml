@@ -13,7 +13,10 @@
 - name: Install Docker on remote server
   # become: true
   apt:
-    name: docker.io
+    name: 
+      - docker.io
+      - docker-compose # v1, for older compose stacks, supported by Ansible
+      - docker-compose-v2 # v2, NOT supported by Ansible, newer
     state: present
 
 - name: Start Docker daemon

@@ -27,10 +27,10 @@
     # - name: Import Betanin config tasks
     #   include_tasks: tasks/update-config/config-betanin.yml
 
-    - name: Handle errors
-      fail:
-        msg: "Failed to execute the playbooks."
-      when: "'failed' in play_results | map(attribute='failed') | list"
+    # - name: Handle errors
+    #   fail:
+    #     msg: "Failed to execute the playbooks."
+    #   when: "'failed' in play_results | map(attribute='failed') | list"
 
   handlers:
       - include: handlers/handlers.yml

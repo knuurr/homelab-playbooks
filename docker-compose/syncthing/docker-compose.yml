@@ -7,16 +7,17 @@ networks:
 version: "2.1"
 services:
   syncthing:
-    image: lscr.io/linuxserver/syncthing:latest
+    image: lscr.io/linuxserver/syncthing:v1.27.3-ls131
     container_name: syncthing
+    hostname: ${SUBDOMAIN}.${ROOT_DOMAIN}
     environment:
       - PUID=2000
       - PGID=2000
-      # - TZ=Europe/London
-      - TZ=Etc/UTC
+      - TZ=Europe/Warsaw
     volumes:
       - /opt/syncthings/config:/config
-      # - /path/to/data1:/data1
+      - /mnt/myhdd/00music/library/mp3-mirror:/music/mp3-mirror:ro
+      - /mnt/myhdd/00music/library/opus-mirror:/music/opus-mirror:ro
       # - /path/to/data2:/data2
     ports:
       # - 8384:8384
@@ -28,22 +29,22 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.05'
-          memory: '128M'
-    restart: unless-stopped
+          cpus: '0.3'
+          memory: '1024M'
+    restart: always
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.${SERVICE_NAME}.rule=Host(`${SUBDOMAIN}.${ROOT_DOMAIN}`)"
       # https://doc.traefik.io/traefik/middlewares/http/stripprefix/
       - "traefik.http.services.${SERVICE_NAME}.loadbalancer.server.port=${PORT}"
       - "traefik.http.routers.${SERVICE_NAME}.tls=true"
-      - "traefik.http.routers.${SERVICE_NAME}.middlewares=authelia@docker"
+      - "traefik.http.routers.${SERVICE_NAME}.middlewares=authelia@docker,default-headers@file"
       # Homer labels
       - "homer.enable=true"
-      - "homer.service=Tools"
-      - "homer.name=Syncthing"
-      - "homer.subtitle=Continuous file synchronization program"
-      - "homer.logo=icons/syncthing.png"
+      - "homepage.group=Tools"
+      - "homepage.name=Syncthing"
+      - "homepage.description=Continuous file synchronization program"
+      - "homepage.icon=syncthing.png"
       # - homer.priority=2
       - "homer.target=_blank"
-      - "homer.url=https://${SUBDOMAIN}.${ROOT_DOMAIN}"
+      - "homepage.href=https://${SUBDOMAIN}.${ROOT_DOMAIN}"

@@ -10,10 +10,16 @@ networks:
 
 services:
   uptime-kuma:
-    image: louislam/uptime-kuma:1
+    image: louislam/uptime-kuma:1.23.11
     container_name: uptime-kuma
     volumes:
+      # Ensure proper timezones
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+      # Other required paths - per app
       - /opt/uptime-kuma:/app/data
+      # For monitoring docker containers
+      - /var/run/docker.sock:/var/run/docker.sock:ro
     restart: always
     networks:
       - backend
@@ -35,10 +41,10 @@ services:
       - com.centurylinklabs.watchtower.scope=autoupdate
       # Homer labels
       - "homer.enable=true"
-      - "homer.service=Tools"
-      - "homer.name=Uptime Kuma"
-      - "homer.subtitle=A self-hosted monitoring tool"
-      - "homer.logo=icons/uptimekuma.png"
+      - "homepage.group=Tools"
+      - "homepage.name=Uptime Kuma"
+      - "homepage.description=A self-hosted monitoring tool"
+      - "homepage.icon=uptime-kuma.png"
       # - homer.priority=2
       - "homer.target=_blank"
-      - "homer.url=https://${SUBDOMAIN}.${ROOT_DOMAIN}"
+      - "homepage.href=https://${SUBDOMAIN}.${ROOT_DOMAIN}"
