@@ -1,42 +1,71 @@
-# homelab-playbooks 🏠
+# HomeLab Showcase 🏠
+
+Welcome to the HomeLab Showcase, where I share the infrastructure setup of my personal homelab. This project revolves around leveraging Ansible playbooks and Docker Compose to streamline the management of various applications within my homelab environment.
+
+The end result is a bootstrapped server with a **reverse proxy** using **Traefik v2**, protected by **Single Sign-On (SSO) with Authelia**. Additionally, a dashboard provided by the **Homepage** project displays all necessary services, thanks to clever use of *labels* within compose stacks for autodiscovery.
 
 
-Playbooks used for provisioning my home server. 
+## Introduction
 
-I extensively describe how I setup my home server, along with explanation of various choices I made in ![my homeserver writeup](https://github.com/knuurr/homelab-writeup).
+My homelab infrastructure is designed to be easily deployable and maintainable using Ansible playbooks and Docker Compose. The main playbooks and configurations are organized to provide a clear understanding of the setup, with a focus on simplicity and flexibility.
 
-Created initially to learn about DevOps and automation technologies. 
+## Warning
 
-I publish it because I'm confident that someone might benefit and learn from my work.
+I provide this repo as learning opportunity for others. Since it's my Homelab expect things to sometimes break, sometims change drastically without any notice. Be warned if you try to attempt to mirror my infrastructure and follow any commits.
 
-I tested this playbook on my machine and I consider it working, but this is an WIP project, so changes, bugs should be expected. 
+## Project Structure
 
-# How to use
+### `main.yml`
 
-## Preparation
+The `main.yml` file serves as the primary playbook for bootstrapping the homelab. While it was initially used to set up the entire infrastructure, it may not contain all roles due to infrequent updates. Use it as a starting point and customize it according to your needs.
 
-First, you must change extension of each `.example` file to it's native file extension.
+### `manage-containers.yml`
 
-Inside each `docker-compose/docker-compose-*/` folder there is `.env.example` file which sets up enviromental variables for particula docker-compose app. Remember to change extension and populate it with your desired values (in most, only subdomain needs to be changed).
+This playbook, `manage-containers.yml`, facilitates the synchronization of the stack folder between local and remote locations. Utilizing arrays, it performs various container operations such as stopping, starting, recreating, and restarting. It's a quick way to manage containers.
 
-Inside `vars/` folder there are also several files which need to have their `.example` suffix removed. Please also take a look inside them and populate with desired values.
+### `docker-compose/`
 
-## Provisioning
+This folder holds the entire stack of Docker Compose files used for hosting various services. Each application has its dedicated folder containing a `docker-compose.yml` file and an `.env.example` file. To use the provided files, remove the `.example` suffix from both files in the respective application folder.
 
-`main.yml` contains calls to all the roles that, after playbook is run, should provision ready-to-use home server, with and containers installed and started.
+### `roles/`
 
-I also advise to use `config-traefik.yml` playbook to upload necessary Authelia + Traefik configuration files, sourced from Jinja2 templates, located in `files/` folder, *either after first* run or after *each configuration change*.
+The `roles/` folder comprises various Ansible roles used to set up different aspects of the homelab infrastructure. Roles are organized by tasks, and some may include subdirectories with additional files.
 
-This is how I personally use this playbook, to upload any configuration changes to the server. Currently this is not integrated into `main.yml`.
+### `handlers/`
 
-There is also `test-compose.yml` playbook for restarting docker-compose applications, if there is need to refresh docker-comopose file, env variables or any other, os that `main.yml` doesn't have to be called.
+The `handlers/` folder contains various handlers used in the playbook execution. These handlers are triggered to respond to specific events during the deployment and maintenance processes.
+
+### `maintenance/`
+
+The `maintenance/` directory houses playbooks dedicated to system maintenance tasks, such as updates and monitoring free disk space. Regularly running these playbooks ensures the homelab stays up-to-date and performs optimally.
+
+### `vars/`
+
+The `vars/` folder is the designated location for setting up variables. Ensure to remove the `.example` suffix from the provided files, particularly within the `docker-compose/` and `vars/` folders. Adjust these variables according to your homelab requirements.
+
+I document only the most "sure" files in here as some of my ideas come and go.
+
+## Usage
+
+1. Remove all files with the `.example` suffix, primarily within the `docker-compose/` and `vars/` folders.
+2. Remove the `.example` suffix from `ansible.cfg` and `inventory`.
+3. Check and adjust variables under the `vars/` folder.
+4. Run the `main.yml` playbook to bootstrap your homelab.
+
+## Contributing
+
+Contributions to enhance and expand this homelab showcase are welcome. Feel free to submit issues, feature requests, or pull requests.
 
 
-Things to consider:
+## Things to consider:
 
 - fix oh-my-zsh install and plugin instllation
 - adjust Ansible user elevation in playbooks
 - (eventually) move it all to *Kubernetes*
+- GitOps - it's not as convienent when using Docker-Compose as it is with Kubernetes sadly.
 
 
 All remarks and questions related to my project welcome :)
+
+
+Happy Homelabbing!
